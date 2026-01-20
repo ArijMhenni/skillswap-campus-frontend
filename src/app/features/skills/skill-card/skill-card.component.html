@@ -1,0 +1,32 @@
+<div class="skill-card" [class.compact]="compact">
+  <div class="card-header">
+    <h3 class="skill-title">{{ skill.title }}</h3>
+    <span [class]="'badge ' + getTypeBadgeClass(skill.type)">
+      {{ getTypeLabel(skill.type) }}
+    </span>
+  </div>
+
+  <p class="skill-description">
+    {{ compact ? truncateDescription(skill.description, 100) : truncateDescription(skill.description, 150) }}
+  </p>
+
+  <div class="card-footer">
+    <span class="badge badge-category">
+      {{ getCategoryLabel(skill.category) }}
+    </span>
+    <span class="skill-time">⏱️ {{ skill.estimatedTime }}h</span>
+  </div>
+
+  @if (skill.user) {
+    <div class="card-user">
+      <span class="user-name">👤 {{ skill.user.firstName }} {{ skill.user.lastName }}</span>
+      @if (!compact) {
+        <span class="user-email">{{ skill.user.email }}</span>
+      }
+    </div>
+  }
+
+  <button class="btn-view-details" (click)="viewDetails()">
+    Voir les détails
+  </button>
+</div>

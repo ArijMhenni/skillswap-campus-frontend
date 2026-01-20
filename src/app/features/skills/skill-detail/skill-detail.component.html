@@ -1,0 +1,114 @@
+<div class="skill-detail-container">
+  <!-- Back Button -->
+  <button class="btn-back" (click)="goBack()">
+    ← Retour à la liste
+  </button>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Chargement de la compétence...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error() && !loading()) {
+    <div class="error">
+      <p>{{ error() }}</p>
+      <button class="btn-retry" (click)="loadSkill(skill()?.id || '')">Réessayer</button>
+    </div>
+  }
+
+  <!-- Skill Detail -->
+  @if (skill() && !loading() && !error()) {
+    <div class="skill-content">
+      <!-- Header -->
+      <div class="skill-header">
+        <div class="header-left">
+          <h1 class="skill-title">{{ skill()!.title }}</h1>
+          <span [class]="'badge badge-type ' + getTypeBadgeClass(skill()!.type)">
+            {{ getTypeLabel(skill()!.type) }}
+          </span>
+        </div>
+
+        <!-- Owner Actions -->
+        @if (isOwner()) {
+          <div class="owner-actions">
+            <button class="btn-edit" (click)="editSkill()">
+              ✏️ Modifier
+            </button>
+            <button class="btn-delete" (click)="deleteSkill()">
+              🗑️ Supprimer
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Meta Info -->
+      <div class="skill-meta">
+        <div class="meta-item">
+          <span class="meta-label">Catégorie:</span>
+          <span class="badge badge-category">
+            {{ getCategoryLabel(skill()!.category) }}
+          </span>
+        </div>
+
+        <div class="meta-item">
+          <span class="meta-label">Temps estimé:</span>
+          <span class="meta-value">⏱️ {{ skill()!.estimatedTime }} heures</span>
+        </div>
+
+        <div class="meta-item">
+          <span class="meta-label">Créée le:</span>
+          <span class="meta-value">{{ formatDate(skill()!.createdAt) }}</span>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="skill-description">
+        <h2>Description</h2>
+        <p>{{ skill()!.description }}</p>
+      </div>
+
+      <!-- User Info -->
+      @if (skill()!.user) {
+        <div class="user-info">
+          <h2>Proposée par</h2>
+          <div class="user-card">
+            <div class="user-avatar">
+              {{ skill()!.user!.firstName.charAt(0) }}{{ skill()!.user!.lastName.charAt(0) }}
+            </div>
+            <div class="user-details">
+              <p class="user-name">{{ skill()!.user!.firstName }} {{ skill()!.user!.lastName }}</p>
+              <p class="user-email">{{ skill()!.user!.email }}</p>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Action Buttons (for non-owners) -->
+      @if (!isOwner()) {
+        <div class="action-buttons">
+          @if (skill()!.type === SkillType.OFFERED) {
+            <button
+              class="btn-action btn-request"
+              (click)="requestSkill()"
+            >
+              📩 Demander cette compétence
+            </button>
+          }
+
+          @if (skill()!.type === SkillType.WANTED) {
+            <button
+              class="btn-action btn-offer"
+              (click)="offerHelp()"
+            >
+              🤝 Proposer mon aide
+            </button>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

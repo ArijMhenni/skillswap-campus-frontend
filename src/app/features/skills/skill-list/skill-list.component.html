@@ -1,0 +1,154 @@
+<div class="skill-list-container">
+  <!-- Header -->
+  <div class="header">
+    <h1>Compétences</h1>
+    <button class="btn-create" (click)="createSkill()">
+      + Créer une compétence
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="search-bar">
+      <input
+        type="text"
+        placeholder="Rechercher une compétence..."
+        [value]="filters().search || ''"
+        (input)="onSearchChange($any($event.target).value)"
+        class="search-input"
+      />
+    </div>
+
+    <div class="filters-row">
+      <div class="filter-group">
+        <label for="category">Catégorie:</label>
+        <select
+          id="category"
+          [value]="filters().category || ''"
+          (change)="onCategoryChange($any($event.target).value)"
+          class="filter-select"
+        >
+          <option value="">Toutes les catégories</option>
+          @for (cat of categories; track cat) {
+            <option [value]="cat">
+              {{ getCategoryLabel(cat) }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="type">Type:</label>
+        <select
+          id="type"
+          [value]="filters().type || ''"
+          (change)="onTypeChange($any($event.target).value)"
+          class="filter-select"
+        >
+          <option value="">Tous les types</option>
+          @for (t of types; track t) {
+            <option [value]="t">
+              {{ getTypeLabel(t) }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <button class="btn-clear" (click)="clearFilters()">
+        Réinitialiser
+      </button>
+
+      <button class="btn-view-toggle" (click)="toggleViewMode()">
+        {{ viewMode() === 'grid' ? '📋 Liste' : '🔲 Grille' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Chargement des compétences...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="error">
+      <p>{{ error() }}</p>
+      <button class="btn-retry" (click)="loadSkills()">Réessayer</button>
+    </div>
+  }
+
+  <!-- Skills Grid/List -->
+  @if (!loading() && !error()) {
+    <div [ngClass]="viewMode() === 'grid' ? 'skills-grid' : 'skills-list'">
+      @for (skill of skills(); track skill.id) {
+        <div
+          class="skill-card"
+          (click)="viewSkillDetail(skill.id)"
+        >
+          <div class="card-header">
+            <h3 class="skill-title">{{ skill.title }}</h3>
+            <span [class]="'badge ' + getTypeBadgeClass(skill.type)">
+              {{ getTypeLabel(skill.type) }}
+            </span>
+          </div>
+
+          <p class="skill-description">
+            {{ skill.description.length > 150 ? (skill.description.substring(0, 150) + '...') : skill.description }}
+          </p>
+
+          <div class="card-footer">
+            <span class="badge badge-category">
+              {{ getCategoryLabel(skill.category) }}
+            </span>
+            <span class="skill-time">⏱️ {{ skill.estimatedTime }}h</span>
+          </div>
+
+          @if (skill.user) {
+            <div class="card-user">
+              <span>Par {{ skill.user.firstName }} {{ skill.user.lastName }}</span>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Empty State -->
+      @if (skills().length === 0) {
+        <div class="empty-state">
+          <p>Aucune compétence trouvée</p>
+          <button class="btn-create" (click)="createSkill()">
+            Créer la première compétence
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Pagination -->
+  @if (!loading() && !error() && pagination().totalPages > 1) {
+    <div class="pagination">
+      <button
+        class="btn-page"
+        [disabled]="pagination().page === 1"
+        (click)="onPageChange(pagination().page - 1)"
+      >
+        ← Précédent
+      </button>
+
+      <span class="page-info">
+        Page {{ pagination().page }} / {{ pagination().totalPages }}
+        ({{ pagination().total }} compétences)
+      </span>
+
+      <button
+        class="btn-page"
+        [disabled]="pagination().page === pagination().totalPages"
+        (click)="onPageChange(pagination().page + 1)"
+      >
+        Suivant →
+      </button>
+    </div>
+  }
+</div>

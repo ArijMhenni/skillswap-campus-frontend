@@ -1,0 +1,163 @@
+<div class="skill-form-container">
+  <div class="form-header">
+    <h1>{{ isEditMode() ? 'Modifier la compétence' : 'Créer une nouvelle compétence' }}</h1>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Chargement...</p>
+    </div>
+  }
+
+  <!-- Error Message -->
+  @if (error()) {
+    <div class="error-message">
+      {{ error() }}
+    </div>
+  }
+
+  <!-- Form -->
+  @if (!loading()) {
+    <form [formGroup]="skillForm" (ngSubmit)="onSubmit()" class="skill-form">
+    <!-- Title -->
+    <div class="form-group">
+      <label for="title" class="form-label">
+        Titre <span class="required">*</span>
+      </label>
+      <input
+        type="text"
+        id="title"
+        formControlName="title"
+        class="form-input"
+        [class.invalid]="isFieldInvalid('title')"
+        placeholder="Ex: Développement Web avec Angular"
+      />
+      @if (isFieldInvalid('title')) {
+        <span class="error-text">
+          {{ getFieldError('title') }}
+        </span>
+      }
+    </div>
+
+    <!-- Description -->
+    <div class="form-group">
+      <label for="description" class="form-label">
+        Description <span class="required">*</span>
+      </label>
+      <textarea
+        id="description"
+        formControlName="description"
+        class="form-textarea"
+        [class.invalid]="isFieldInvalid('description')"
+        placeholder="Décrivez la compétence en détail..."
+        rows="5"
+      ></textarea>
+      @if (isFieldInvalid('description')) {
+        <span class="error-text">
+          {{ getFieldError('description') }}
+        </span>
+      }
+      <span class="char-count">
+        {{ skillForm.get('description')?.value?.length || 0 }} / 500 caractères
+      </span>
+    </div>
+
+    <!-- Category -->
+    <div class="form-group">
+      <label for="category" class="form-label">
+        Catégorie <span class="required">*</span>
+      </label>
+      <select
+        id="category"
+        formControlName="category"
+        class="form-select"
+        [class.invalid]="isFieldInvalid('category')"
+      >
+        <option value="">Sélectionnez une catégorie</option>
+        @for (cat of categories; track cat) {
+          <option [value]="cat">
+            {{ getCategoryLabel(cat) }}
+          </option>
+        }
+      </select>
+      @if (isFieldInvalid('category')) {
+        <span class="error-text">
+          {{ getFieldError('category') }}
+        </span>
+      }
+    </div>
+
+    <!-- Type (Radio Buttons) -->
+    <div class="form-group">
+      <label class="form-label">
+        Type de compétence <span class="required">*</span>
+      </label>
+      <div class="radio-group">
+        @for (t of types; track t) {
+          <div class="radio-option">
+            <input
+              type="radio"
+              [id]="'type-' + t"
+              formControlName="type"
+              [value]="t"
+              class="radio-input"
+            />
+            <label [for]="'type-' + t" class="radio-label">
+              <span class="radio-circle"></span>
+              <span class="radio-text">{{ getTypeLabel(t) }}</span>
+            </label>
+          </div>
+        }
+      </div>
+      @if (isFieldInvalid('type')) {
+        <span class="error-text">
+          {{ getFieldError('type') }}
+        </span>
+      }
+    </div>
+
+    <!-- Estimated Time -->
+    <div class="form-group">
+      <label for="estimatedTime" class="form-label">
+        Temps estimé (heures) <span class="required">*</span>
+      </label>
+      <input
+        type="number"
+        id="estimatedTime"
+        formControlName="estimatedTime"
+        class="form-input"
+        [class.invalid]="isFieldInvalid('estimatedTime')"
+        min="1"
+        max="1000"
+        placeholder="Ex: 10"
+      />
+      @if (isFieldInvalid('estimatedTime')) {
+        <span class="error-text">
+          {{ getFieldError('estimatedTime') }}
+        </span>
+      }
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button
+        type="button"
+        class="btn-cancel"
+        (click)="cancel()"
+        [disabled]="submitting()"
+      >
+        Annuler
+      </button>
+      <button
+        type="submit"
+        class="btn-submit"
+        [disabled]="submitting() || skillForm.invalid"
+      >
+        {{ submitting() ? 'En cours...' : (isEditMode() ? 'Mettre à jour' : 'Créer') }}
+      </button>
+    </div>
+    </form>
+  }
+</div>
