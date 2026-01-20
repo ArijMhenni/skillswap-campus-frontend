@@ -1,114 +1,143 @@
 <div class="skill-detail-container">
-  <!-- Back Button -->
   <button class="btn-back" (click)="goBack()">
-    ← Retour à la liste
+    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    <span>Retour au Marketplace</span>
   </button>
 
-  <!-- Loading State -->
   @if (loading()) {
-    <div class="loading">
+    <div class="loading-state">
       <div class="spinner"></div>
-      <p>Chargement de la compétence...</p>
+      <p>Chargement...</p>
     </div>
   }
 
-  <!-- Error State -->
   @if (error() && !loading()) {
-    <div class="error">
-      <p>{{ error() }}</p>
+    <div class="error-state">
+      <div class="error-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <p class="error-message">{{ error() }}</p>
       <button class="btn-retry" (click)="loadSkill(skill()?.id || '')">Réessayer</button>
     </div>
   }
 
-  <!-- Skill Detail -->
   @if (skill() && !loading() && !error()) {
-    <div class="skill-content">
-      <!-- Header -->
-      <div class="skill-header">
-        <div class="header-left">
-          <h1 class="skill-title">{{ skill()!.title }}</h1>
-          <span [class]="'badge badge-type ' + getTypeBadgeClass(skill()!.type)">
-            {{ getTypeLabel(skill()!.type) }}
-          </span>
-        </div>
+    <div class="detail-grid">
+      <div class="main-content">
+        <div class="skill-card">
+          <div class="card-header">
+            <div class="badges">
+              <span class="badge badge-type" [class.badge-offer]="skill()!.type === SkillType.OFFERED" [class.badge-request]="skill()!.type === SkillType.WANTED">
+                {{ getTypeLabel(skill()!.type) }}
+              </span>
+              <span class="badge badge-category" [ngClass]="getCategoryClass(skill()!.category)">
+                {{ getCategoryLabel(skill()!.category) }}
+              </span>
+            </div>
+            
+            @if (isOwner()) {
+              <div class="owner-actions">
+                <button class="btn-icon btn-edit" (click)="editSkill()" title="Modifier">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                </button>
+                <button class="btn-icon btn-delete" (click)="deleteSkill()" title="Supprimer">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                </button>
+              </div>
+            }
+          </div>
 
-        <!-- Owner Actions -->
-        @if (isOwner()) {
-          <div class="owner-actions">
-            <button class="btn-edit" (click)="editSkill()">
-              ✏️ Modifier
-            </button>
-            <button class="btn-delete" (click)="deleteSkill()">
-              🗑️ Supprimer
-            </button>
+          <h1 class="skill-title">{{ skill()!.title }}</h1>
+
+          <div class="skill-meta">
+            <div class="meta-item">
+              <svg class="icon-meta" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <span>{{ skill()!.estimatedTime }} heures</span>
+            </div>
+            <div class="meta-item">
+              <svg class="icon-meta" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              <span>Publié le {{ formatDate(skill()!.createdAt) }}</span>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2 class="section-title">Description</h2>
+            <p class="description-text">{{ skill()!.description }}</p>
+          </div>
+        </div>
+      </div>
+
+      <aside class="sidebar">
+        @if (skill()!.user) {
+          <div class="user-card">
+            <h3 class="card-title">{{ skill()!.type === SkillType.OFFERED ? 'Proposé par' : 'Recherché par' }}</h3>
+            <div class="user-profile">
+              <div class="avatar">
+                @if (skill()!.user!.avatar) {
+                  <img [src]="skill()!.user!.avatar" [alt]="getUserName()">
+                } @else {
+                  <span class="avatar-initials">{{ getUserInitials() }}</span>
+                }
+              </div>
+              <div class="user-info">
+                <p class="user-name">{{ getUserName() }}</p>
+                @if (getUserRating() > 0) {
+                  <div class="user-rating">
+                    <svg class="star-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                    <span class="rating-value">{{ getUserRating().toFixed(1) }}</span>
+                    <span class="rating-count">({{ getUserReviewCount() }})</span>
+                  </div>
+                }
+                <p class="user-email">{{ skill()!.user!.email }}</p>
+              </div>
+            </div>
+
+            @if (!isOwner()) {
+              <div class="action-section">
+                @if (skill()!.type === SkillType.OFFERED) {
+                  <button class="btn-action" (click)="requestSkill()">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                      <polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                    <span>Demander cette compétence</span>
+                  </button>
+                } @else {
+                  <button class="btn-action" (click)="offerHelp()">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <span>Proposer mon aide</span>
+                  </button>
+                }
+              </div>
+            }
           </div>
         }
-      </div>
-
-      <!-- Meta Info -->
-      <div class="skill-meta">
-        <div class="meta-item">
-          <span class="meta-label">Catégorie:</span>
-          <span class="badge badge-category">
-            {{ getCategoryLabel(skill()!.category) }}
-          </span>
-        </div>
-
-        <div class="meta-item">
-          <span class="meta-label">Temps estimé:</span>
-          <span class="meta-value">⏱️ {{ skill()!.estimatedTime }} heures</span>
-        </div>
-
-        <div class="meta-item">
-          <span class="meta-label">Créée le:</span>
-          <span class="meta-value">{{ formatDate(skill()!.createdAt) }}</span>
-        </div>
-      </div>
-
-      <!-- Description -->
-      <div class="skill-description">
-        <h2>Description</h2>
-        <p>{{ skill()!.description }}</p>
-      </div>
-
-      <!-- User Info -->
-      @if (skill()!.user) {
-        <div class="user-info">
-          <h2>Proposée par</h2>
-          <div class="user-card">
-            <div class="user-avatar">
-              {{ skill()!.user!.firstName.charAt(0) }}{{ skill()!.user!.lastName.charAt(0) }}
-            </div>
-            <div class="user-details">
-              <p class="user-name">{{ skill()!.user!.firstName }} {{ skill()!.user!.lastName }}</p>
-              <p class="user-email">{{ skill()!.user!.email }}</p>
-            </div>
-          </div>
-        </div>
-      }
-
-      <!-- Action Buttons (for non-owners) -->
-      @if (!isOwner()) {
-        <div class="action-buttons">
-          @if (skill()!.type === SkillType.OFFERED) {
-            <button
-              class="btn-action btn-request"
-              (click)="requestSkill()"
-            >
-              📩 Demander cette compétence
-            </button>
-          }
-
-          @if (skill()!.type === SkillType.WANTED) {
-            <button
-              class="btn-action btn-offer"
-              (click)="offerHelp()"
-            >
-              🤝 Proposer mon aide
-            </button>
-          }
-        </div>
-      }
+      </aside>
     </div>
   }
 </div>

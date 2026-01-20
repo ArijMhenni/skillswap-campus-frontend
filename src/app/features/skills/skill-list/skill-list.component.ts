@@ -2,6 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { SkillCardComponent } from '../skill-card/skill-card.component';
 import { SkillService } from '../services/skill.service';
 import {
   Skill,
@@ -15,7 +16,7 @@ import { PAGINATION_DEFAULTS, SKILL_CATEGORY_LABELS, SKILL_TYPE_LABELS } from '.
 @Component({
   selector: 'app-skill-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SkillCardComponent],
   templateUrl: './skill-list.component.html',
   styleUrls: ['./skill-list.component.css'],
 })
@@ -23,9 +24,6 @@ export class SkillListComponent implements OnInit {
   skills = signal<Skill[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
-
-  // View mode
-  viewMode = signal<'grid' | 'list'>('grid');
 
   // Filters
   filters = signal<SkillFilters>({
@@ -50,10 +48,7 @@ export class SkillListComponent implements OnInit {
   categories = Object.values(SkillCategory);
   types = Object.values(SkillType);
 
-  constructor(
-    private skillService: SkillService,
-    private router: Router
-  ) {}
+  constructor(private router: Router, private skillService: SkillService) {}
 
   ngOnInit(): void {
     this.loadSkills();
@@ -66,11 +61,16 @@ export class SkillListComponent implements OnInit {
     this.skillService.getSkills(this.filters()).subscribe({
       next: (response: PaginatedResponse<Skill>) => {
         this.skills.set(response.data);
-        this.pagination.set(response.pagination);
+        this.pagination.set({
+          page: response.pagination.page,
+          limit: response.pagination.limit,
+          total: response.pagination.total,
+          totalPages: response.pagination.totalPages,
+        });
         this.loading.set(false);
       },
       error: (err) => {
-        this.error.set(ERROR_MESSAGES.SKILL.LOAD_LIST_ERROR);
+        this.error.set(ERROR_MESSAGES.SKILL.LOAD_ERROR);
         console.error('Error loading skills:', err);
         this.loading.set(false);
       },
@@ -78,17 +78,28 @@ export class SkillListComponent implements OnInit {
   }
 
   onSearchChange(search: string): void {
-    this.filters.update(f => ({ ...f, search, page: 1 }));
+    const currentFilters = this.filters();
+    this.filters.set({ ...currentFilters, search, page: 1 });
     this.loadSkills();
   }
 
   onCategoryChange(category: string): void {
-    this.filters.update(f => ({ ...f, category: category as SkillCategory, page: 1 }));
+    const currentFilters = this.filters();
+    this.filters.set({
+      ...currentFilters,
+      category: category ? (category as SkillCategory) : undefined,
+      page: 1,
+    });
     this.loadSkills();
   }
 
   onTypeChange(type: string): void {
-    this.filters.update(f => ({ ...f, type: type as SkillType, page: 1 }));
+    const currentFilters = this.filters();
+    this.filters.set({
+      ...currentFilters,
+      type: type ? (type as SkillType) : undefined,
+      page: 1,
+    });
     this.loadSkills();
   }
 
@@ -100,18 +111,14 @@ export class SkillListComponent implements OnInit {
     this.loadSkills();
   }
 
-  onPageChange(page: number): void {
-    this.filters.update(f => ({ ...f, page }));
+  goToPage(page: number): void {
+    const currentFilters = this.filters();
+    this.filters.set({ ...currentFilters, page });
     this.loadSkills();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  toggleViewMode(): void {
-    this.viewMode.update(mode => mode === 'grid' ? 'list' : 'grid');
-  }
-
-  viewSkillDetail(skillId: string): void {
-    this.router.navigate(['/skills', skillId]);
+  viewSkillDetail(id: string): void {
+    this.router.navigate(['/skills', id]);
   }
 
   createSkill(): void {
@@ -127,6 +134,6 @@ export class SkillListComponent implements OnInit {
   }
 
   getTypeBadgeClass(type: SkillType): string {
-    return type === SkillType.OFFERED ? 'badge-offered' : 'badge-wanted';
+    return type === SkillType.OFFERED ? 'badge-offering' : 'badge-seeking';
   }
 }

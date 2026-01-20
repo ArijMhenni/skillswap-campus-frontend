@@ -1,26 +1,53 @@
 <div class="skill-form-container">
-  <div class="form-header">
-    <h1>{{ isEditMode() ? 'Modifier la compétence' : 'Créer une nouvelle compétence' }}</h1>
-  </div>
+  <button class="btn-back" (click)="cancel()">
+    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    <span>Retour au Marketplace</span>
+  </button>
 
-  <!-- Loading State -->
   @if (loading()) {
-    <div class="loading">
+    <div class="loading-state">
       <div class="spinner"></div>
       <p>Chargement...</p>
     </div>
   }
 
-  <!-- Error Message -->
   @if (error()) {
     <div class="error-message">
       {{ error() }}
     </div>
   }
 
-  <!-- Form -->
   @if (!loading()) {
-    <form [formGroup]="skillForm" (ngSubmit)="onSubmit()" class="skill-form">
+    <div class="form-card">
+      <div class="form-header">
+        <h1>{{ isEditMode() ? 'Modifier une Compétence' : 'Publier une Compétence' }}</h1>
+        <p class="form-subtitle">Partagez ce que vous pouvez offrir ou ce que vous voulez apprendre</p>
+      </div>
+
+      <form [formGroup]="skillForm" (ngSubmit)="onSubmit()" class="skill-form">
+        <div class="form-group">
+          <label class="form-label">Que souhaitez-vous faire ?</label>
+          <div class="type-cards">
+            @for (t of types; track t) {
+              <div class="type-card" [class.selected]="skillForm.get('type')?.value === t" (click)="selectType(t)">
+                <div class="card-icon" [class.offer]="t === 'OFFER'" [class.request]="t === 'REQUEST'">
+                  <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="12" cy="12" r="10"/>
+                  </svg>
+                </div>
+                <div class="card-content">
+                  <h3>{{ getTypeLabel(t) }}</h3>
+                  <p>{{ t === 'OFFER' ? 'Partagez votre expertise avec les autres' : 'Trouvez quelqu\'un pour vous enseigner' }}</p>
+                </div>
+              </div>
+            }
+          </div>
+          @if (isFieldInvalid('type')) {
+            <span class="error-text">{{ getFieldError('type') }}</span>
+          }
+        </div>
     <!-- Title -->
     <div class="form-group">
       <label for="title" class="form-label">
@@ -89,35 +116,6 @@
       }
     </div>
 
-    <!-- Type (Radio Buttons) -->
-    <div class="form-group">
-      <label class="form-label">
-        Type de compétence <span class="required">*</span>
-      </label>
-      <div class="radio-group">
-        @for (t of types; track t) {
-          <div class="radio-option">
-            <input
-              type="radio"
-              [id]="'type-' + t"
-              formControlName="type"
-              [value]="t"
-              class="radio-input"
-            />
-            <label [for]="'type-' + t" class="radio-label">
-              <span class="radio-circle"></span>
-              <span class="radio-text">{{ getTypeLabel(t) }}</span>
-            </label>
-          </div>
-        }
-      </div>
-      @if (isFieldInvalid('type')) {
-        <span class="error-text">
-          {{ getFieldError('type') }}
-        </span>
-      }
-    </div>
-
     <!-- Estimated Time -->
     <div class="form-group">
       <label for="estimatedTime" class="form-label">
@@ -140,24 +138,38 @@
       }
     </div>
 
+    <div class="tips-section">
+      <div class="tips-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+        </svg>
+      </div>
+      <div class="tips-content">
+        <h3>Conseils pour une bonne publication</h3>
+        <ul>
+          <li>Soyez précis sur votre niveau d'expérience</li>
+          <li>Mentionnez ce qui rend votre approche unique</li>
+          <li>Incluez les prérequis ou exigences éventuels</li>
+        </ul>
+      </div>
+    </div>
+
     <!-- Form Actions -->
     <div class="form-actions">
-      <button
-        type="button"
-        class="btn-cancel"
-        (click)="cancel()"
-        [disabled]="submitting()"
-      >
+      <button type="button" class="btn-cancel" (click)="cancel()" [disabled]="submitting()">
         Annuler
       </button>
-      <button
-        type="submit"
-        class="btn-submit"
-        [disabled]="submitting() || skillForm.invalid"
-      >
-        {{ submitting() ? 'En cours...' : (isEditMode() ? 'Mettre à jour' : 'Créer') }}
+      <button type="submit" class="btn-submit" [disabled]="submitting() || skillForm.invalid">
+        <span>{{ submitting() ? 'Publication...' : (isEditMode() ? 'Mettre à jour' : 'Publier la Compétence') }}</span>
+        @if (!submitting()) {
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        }
       </button>
     </div>
     </form>
+    </div>
   }
 </div>

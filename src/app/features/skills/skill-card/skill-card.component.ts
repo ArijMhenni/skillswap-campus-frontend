@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Skill } from '../../../core/models/skill.model';
 import { SkillCategory, SkillType } from '../../../core/models/skill.enum';
+import { getUserDisplayName, getUserInitials } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-skill-card',
@@ -13,7 +14,6 @@ import { SkillCategory, SkillType } from '../../../core/models/skill.enum';
 })
 export class SkillCardComponent {
   @Input() skill!: Skill;
-  @Input() compact = false;
 
   constructor(private router: Router) {}
 
@@ -23,7 +23,7 @@ export class SkillCardComponent {
 
   getCategoryLabel(category: SkillCategory): string {
     const labels: Record<SkillCategory, string> = {
-      [SkillCategory.TECH]: 'Technologie',
+      [SkillCategory.TECH]: 'Tech',
       [SkillCategory.LANGUAGES]: 'Langues',
       [SkillCategory.ART]: 'Art',
       [SkillCategory.MUSIC]: 'Musique',
@@ -35,18 +35,46 @@ export class SkillCardComponent {
     return labels[category];
   }
 
+  getCategoryClass(category: SkillCategory): string {
+    const classes: Record<SkillCategory, string> = {
+      [SkillCategory.TECH]: 'category-tech',
+      [SkillCategory.LANGUAGES]: 'category-languages',
+      [SkillCategory.ART]: 'category-art',
+      [SkillCategory.MUSIC]: 'category-music',
+      [SkillCategory.SPORTS]: 'category-sports',
+      [SkillCategory.COOKING]: 'category-cooking',
+      [SkillCategory.OTHER]: 'category-other',
+      [SkillCategory.ACADEMICS]: 'category-academics',
+    };
+    return classes[category];
+  }
+
   getTypeLabel(type: SkillType): string {
-    return type === SkillType.OFFERED ? 'Proposée' : 'Recherchée';
+    return type === SkillType.OFFERED ? 'Offre' : 'Recherche';
   }
 
   getTypeBadgeClass(type: SkillType): string {
-    return type === SkillType.OFFERED ? 'badge-offered' : 'badge-wanted';
+    return type === SkillType.OFFERED ? 'badge-offering' : 'badge-seeking';
   }
 
-  truncateDescription(description: string, maxLength: number = 150): string {
-    if (description.length <= maxLength) {
-      return description;
-    }
-    return description.substring(0, maxLength) + '...';
+  getUserName(): string {
+    return this.skill.user ? getUserDisplayName(this.skill.user) : '';
+  }
+
+  getUserInitials(): string {
+    return this.skill.user ? getUserInitials(this.skill.user) : '?';
+  }
+
+  getUserRating(): number {
+    return this.skill.user?.rating || 0;
+  }
+
+  getUserReviewCount(): number {
+    return this.skill.user?.reviewCount || 0;
+  }
+
+  getEstimatedTimeLabel(): string {
+    const hours = this.skill.estimatedTime;
+    return hours === 1 ? `${hours} heure/semaine` : `${hours}-${hours + 1} heures/semaine`;
   }
 }

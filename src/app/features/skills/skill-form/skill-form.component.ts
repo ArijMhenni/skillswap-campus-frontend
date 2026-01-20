@@ -190,4 +190,8 @@ export class SkillFormComponent implements OnInit {
 
     return VALIDATION_MESSAGES.INVALID;
   }
+
+  selectType(type: SkillType): void {
+    this.skillForm.patchValue({ type });
+  }
 }
