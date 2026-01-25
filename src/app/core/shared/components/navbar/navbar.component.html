@@ -1,18 +1,17 @@
 <nav class="navbar">
   <div class="navbar-container">
     <div class="navbar-left">
-      <a routerLink="/" class="navbar-brand">
+      <a routerLink="/skills" class="brand">
         <div class="brand-logo">
           <svg class="logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
           </svg>
         </div>
-        <span class="brand-text">SkillSwap</span>
+        <span class="brand-text">Skill Swap</span>
       </a>
 
       <div class="navbar-nav">
-        <a routerLink="/skills" routerLinkActive="active" class="nav-link">Marketplace</a>
+        <a routerLink="/skills" routerLinkActive="active" class="nav-link">Skills</a>
         <a routerLink="/requests" routerLinkActive="active" class="nav-link">Requests</a>
         <a routerLink="/messages" routerLinkActive="active" class="nav-link">Messages</a>
       </div>
@@ -36,9 +35,21 @@
         }
       </button>
 
-      <button class="avatar-btn" (click)="onProfileClick()" aria-label="Profile">
+      <!-- Logout Button - Hidden on login/register pages -->
+      @if (shouldShowLogout()) {
+        <button class="icon-btn" (click)="onLogout()" aria-label="Logout" title="Logout">
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        </button>
+      }
+
+      <!-- Profile Avatar -->
+      <button class="avatar-btn" (click)="onProfileClick()" aria-label="Profile" title="My Profile">
         <div class="avatar">
-          <span class="avatar-text">U</span>
+          <span class="avatar-text">{{ getUserInitials() }}</span>
         </div>
       </button>
     </div>

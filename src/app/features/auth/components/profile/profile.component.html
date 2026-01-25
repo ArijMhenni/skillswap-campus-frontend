@@ -1,0 +1,355 @@
+<div class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-800">My Profile</h1>
+          <p class="text-gray-600 mt-1">Manage your account information and skills</p>
+        </div>
+        <button
+          (click)="onLogout()"
+          class="btn-secondary flex items-center gap-2"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+          </svg>
+          Logout
+        </button>
+      </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    @if (successMessage) {
+      <div class="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg flex items-start">
+        <svg class="w-5 h-5 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        </svg>
+        <span>{{ successMessage }}</span>
+      </div>
+    }
+
+    @if (errorMessage) {
+      <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg flex items-start">
+        <svg class="w-5 h-5 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+        </svg>
+        <span>{{ errorMessage }}</span>
+      </div>
+    }
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Left Sidebar - User Info Card -->
+      <div class="lg:col-span-1">
+        <div class="card text-center">
+          <!-- Avatar -->
+          <div class="mb-4">
+            <div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+              {{ getUserInitials() }}
+            </div>
+          </div>
+
+          <!-- User Info -->
+          <h2 class="text-xl font-bold text-gray-800 mb-1">
+            {{ currentUser?.firstName }} {{ currentUser?.lastName }}
+          </h2>
+          <p class="text-gray-600 text-sm mb-4">{{ currentUser?.email }}</p>
+
+          <!-- Role Badge -->
+          <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary mb-6">
+            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+            </svg>
+            {{ currentUser?.role }}
+          </div>
+
+          <!-- Stats -->
+          <div class="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200">
+            <div>
+              <div class="text-2xl font-bold text-primary">{{ offeredSkills.length }}</div>
+              <div class="text-xs text-gray-600">Skills Offered</div>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-secondary">{{ wantedSkills.length }}</div>
+              <div class="text-xs text-gray-600">Skills Wanted</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Content - Profile Form -->
+      <div class="lg:col-span-2">
+        <div class="card">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold text-gray-800">Profile Information</h3>
+            @if (!isEditing) {
+              <button
+                (click)="toggleEdit()"
+                class="btn-primary flex items-center gap-2"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                Edit Profile
+              </button>
+            }
+          </div>
+
+          <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+            <!-- Personal Information -->
+            <div class="mb-6">
+              <h4 class="text-sm font-semibold text-gray-700 mb-4 flex items-center">
+                <svg class="w-4 h-4 mr-2 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                </svg>
+                Personal Information
+              </h4>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- First Name -->
+                <div>
+                  <label for="firstName" class="block text-sm font-medium text-gray-700 mb-2">
+                    First Name
+                  </label>
+                  <input
+                    id="firstName"
+                    type="text"
+                    formControlName="firstName"
+                    class="input-field"
+                    [class.input-error]="firstName?.invalid && firstName?.touched"
+                    [readonly]="!isEditing"
+                    [class.bg-gray-50]="!isEditing"
+                  />
+                  @if (isEditing && firstName?.invalid && firstName?.touched) {
+                    <div class="mt-1 text-sm text-red-600">
+                      @if (firstName?.errors?.['required']) {
+                        <p>First name is required</p>
+                      }
+                      @if (firstName?.errors?.['minlength']) {
+                        <p>Must be at least 2 characters</p>
+                      }
+                    </div>
+                  }
+                </div>
+
+                <!-- Last Name -->
+                <div>
+                  <label for="lastName" class="block text-sm font-medium text-gray-700 mb-2">
+                    Last Name
+                  </label>
+                  <input
+                    id="lastName"
+                    type="text"
+                    formControlName="lastName"
+                    class="input-field"
+                    [class.input-error]="lastName?.invalid && lastName?.touched"
+                    [readonly]="!isEditing"
+                    [class.bg-gray-50]="!isEditing"
+                  />
+                  @if (isEditing && lastName?.invalid && lastName?.touched) {
+                    <div class="mt-1 text-sm text-red-600">
+                      @if (lastName?.errors?.['required']) {
+                        <p>Last name is required</p>
+                      }
+                      @if (lastName?.errors?.['minlength']) {
+                        <p>Must be at least 2 characters</p>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <!-- Email (Read-only) -->
+              <div class="mt-4">
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                  Email Address
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  formControlName="email"
+                  class="input-field bg-gray-50 cursor-not-allowed"
+                  readonly
+                />
+                <p class="mt-1 text-xs text-gray-500">Email cannot be changed</p>
+              </div>
+            </div>
+
+            <!-- Offered Skills -->
+            <div class="mb-6">
+              <h4 class="text-sm font-semibold text-gray-700 mb-4 flex items-center">
+                <svg class="w-4 h-4 mr-2 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                  <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                Skills I Can Offer
+              </h4>
+
+              <!-- Add Skill Input (only in edit mode) -->
+              @if (isEditing) {
+                <div class="mb-3">
+                  <div class="flex gap-2">
+                    <input
+                      type="text"
+                      [(ngModel)]="newOfferedSkill"
+                      [ngModelOptions]="{standalone: true}"
+                      (keypress)="onOfferedSkillKeyPress($event)"
+                      class="input-field"
+                      placeholder="e.g., JavaScript, Guitar, French..."
+                    />
+                    <button
+                      type="button"
+                      (click)="addOfferedSkill()"
+                      class="btn-primary px-4"
+                    >
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              }
+
+              <!-- Skills List -->
+              <div class="flex flex-wrap gap-2">
+                @for (skill of offeredSkills; track skill) {
+                  <span class="badge-primary flex items-center gap-2">
+                    {{ skill }}
+                    @if (isEditing) {
+                      <button
+                        type="button"
+                        (click)="removeOfferedSkill(skill)"
+                        class="hover:bg-primary/20 rounded-full p-0.5"
+                      >
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                      </button>
+                    }
+                  </span>
+                }
+                @if (offeredSkills.length === 0) {
+                  <span class="text-gray-500 text-sm italic">
+                    No skills offered yet
+                  </span>
+                }
+              </div>
+            </div>
+
+            <!-- Wanted Skills -->
+            <div class="mb-6">
+              <h4 class="text-sm font-semibold text-gray-700 mb-4 flex items-center">
+                <svg class="w-4 h-4 mr-2 text-secondary" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+                </svg>
+                Skills I Want to Learn
+              </h4>
+
+              <!-- Add Skill Input (only in edit mode) -->
+              @if (isEditing) {
+                <div class="mb-3">
+                  <div class="flex gap-2">
+                    <input
+                      type="text"
+                      [(ngModel)]="newWantedSkill"
+                      [ngModelOptions]="{standalone: true}"
+                      (keypress)="onWantedSkillKeyPress($event)"
+                      class="input-field"
+                      placeholder="e.g., Python, Photography, Spanish..."
+                    />
+                    <button
+                      type="button"
+                      (click)="addWantedSkill()"
+                      class="btn-primary px-4"
+                    >
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              }
+
+              <!-- Skills List -->
+              <div class="flex flex-wrap gap-2">
+                @for (skill of wantedSkills; track skill) {
+                  <span class="badge-secondary flex items-center gap-2">
+                    {{ skill }}
+                    @if (isEditing) {
+                      <button
+                        type="button"
+                        (click)="removeWantedSkill(skill)"
+                        class="hover:bg-secondary/20 rounded-full p-0.5"
+                      >
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                      </button>
+                    }
+                  </span>
+                }
+                @if (wantedSkills.length === 0) {
+                  <span class="text-gray-500 text-sm italic">
+                    No skills wanted yet
+                  </span>
+                }
+              </div>
+            </div>
+
+            <!-- Availability -->
+            <div class="mb-6">
+              <h4 class="text-sm font-semibold text-gray-700 mb-4 flex items-center">
+                <svg class="w-4 h-4 mr-2 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                </svg>
+                Availability
+              </h4>
+
+              <textarea
+                id="availability"
+                formControlName="availability"
+                rows="4"
+                class="input-field"
+                [readonly]="!isEditing"
+                [class.bg-gray-50]="!isEditing"
+                placeholder="e.g., Weekends 10am-6pm, Weekdays after 5pm..."
+              ></textarea>
+            </div>
+
+            <!-- Action Buttons -->
+            @if (isEditing) {
+              <div class="flex gap-3">
+                <button
+                  type="submit"
+                  [disabled]="isLoading"
+                  class="btn-primary flex-1 flex items-center justify-center"
+                >
+                  @if (isLoading) {
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  }
+                  @if (!isLoading) {
+                    <span>Save Changes</span>
+                  }
+                  @if (isLoading) {
+                    <span>Saving...</span>
+                  }
+                </button>
+                <button
+                  type="button"
+                  (click)="toggleEdit()"
+                  [disabled]="isLoading"
+                  class="btn-secondary flex-1"
+                >
+                  Cancel
+                </button>
+              </div>
+            }
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
