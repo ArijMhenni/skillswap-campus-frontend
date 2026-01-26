@@ -1,0 +1,82 @@
+<div class="container mx-auto p-6">
+  <h1 class="text-3xl font-bold mb-6">Mes Demandes d'Échange</h1>
+
+  <!-- Tabs -->
+  <div class="flex gap-4 mb-6 border-b">
+    <button 
+      (click)="changeTab('sent')"
+      [class.border-b-2]="activeTab() === 'sent'"
+      [class.border-blue-600]="activeTab() === 'sent'"
+      [class.text-blue-600]="activeTab() === 'sent'"
+      class="px-4 py-2 font-semibold">
+      Envoyées
+    </button>
+    <button 
+      (click)="changeTab('received')"
+      [class.border-b-2]="activeTab() === 'received'"
+      [class.border-blue-600]="activeTab() === 'received'"
+      [class.text-blue-600]="activeTab() === 'received'"
+      class="px-4 py-2 font-semibold">
+      Reçues
+    </button>
+  </div>
+
+  <!-- Filtres -->
+  <div class="flex gap-2 mb-6 flex-wrap">
+    <button 
+      (click)="filterByStatus('ALL')"
+      [class.bg-blue-600]="selectedStatus() === 'ALL'"
+      [class.text-white]="selectedStatus() === 'ALL'"
+      class="px-4 py-2 rounded-lg border">
+      Tous
+    </button>
+    <button 
+      (click)="filterByStatus(RequestStatus.PENDING)"
+      [class.bg-orange-600]="selectedStatus() === RequestStatus.PENDING"
+      [class.text-white]="selectedStatus() === RequestStatus.PENDING"
+      class="px-4 py-2 rounded-lg border">
+      En attente
+    </button>
+    <button 
+      (click)="filterByStatus(RequestStatus.ACCEPTED)"
+      [class.bg-green-600]="selectedStatus() === RequestStatus.ACCEPTED"
+      [class.text-white]="selectedStatus() === RequestStatus.ACCEPTED"
+      class="px-4 py-2 rounded-lg border">
+      Acceptées
+    </button>
+    <button 
+      (click)="filterByStatus(RequestStatus.COMPLETED)"
+      [class.bg-blue-600]="selectedStatus() === RequestStatus.COMPLETED"
+      [class.text-white]="selectedStatus() === RequestStatus.COMPLETED"
+      class="px-4 py-2 rounded-lg border">
+      Complétées
+    </button>
+  </div>
+
+  <!-- Loading -->
+  @if (isLoading()) {
+    <div class="text-center py-12">
+      <p class="text-gray-600">Chargement...</p>
+    </div>
+  }
+
+  <!-- Liste des requêtes -->
+  @if (!isLoading() && filteredRequests().length > 0) {
+    <div class="grid gap-4">
+      @for (request of filteredRequests(); track request.id) {
+        <app-request-card 
+          [request]="request"
+          [viewAs]="activeTab()"
+          (requestUpdated)="onRequestUpdated()">
+        </app-request-card>
+      }
+    </div>
+  }
+
+  <!-- Empty state -->
+  @if (!isLoading() && filteredRequests().length === 0) {
+    <div class="text-center py-12 bg-gray-50 rounded-lg">
+      <p class="text-gray-600">Aucune demande trouvée</p>
+    </div>
+  }
+</div>

@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { RequestService } from '../../services/request.service';
 import { Request, RequestStatus } from '../../models/request.model';
 import { RequestCardComponent } from '../request-card/request-card.component';
@@ -13,6 +14,7 @@ import { RequestCardComponent } from '../request-card/request-card.component';
 })
 export class RequestDashboardComponent implements OnInit {
   private requestService = inject(RequestService);
+  private router = inject(Router);
 
   // Signals
   requests = signal<Request[]>([]);
@@ -58,6 +60,10 @@ export class RequestDashboardComponent implements OnInit {
 
   filterByStatus(status: RequestStatus | 'ALL'): void {
     this.selectedStatus.set(status);
+  }
+
+  navigateToDetail(id: string): void {
+    this.router.navigate(['/requests', id]);
   }
 
   onRequestUpdated(): void {
