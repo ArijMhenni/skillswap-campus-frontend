@@ -11,15 +11,15 @@
     Demander cette compétence
   </button>
 
-  //mch 3jbetnii
+  
   @if (showModal()) {
-    <app-create-request-modal
-      [skillId]="skill()?.id || ''"
-      [skillTitle]="skill()?.title || ''"
-      (requestCreated)="onRequestCreated()"
-      (modalClosed)="closeModal()">
-    </app-create-request-modal>
-  }
+  <app-create-request-modal
+    [skillId]="skill()!.id"
+    [skillTitle]="skill()!.title"
+    (requestCreated)="onRequestCreated()"
+    (modalClosed)="closeModal()">
+  </app-create-request-modal>
+}
   @if (loading()) {
     <div class="loading-state">
       <div class="spinner"></div>

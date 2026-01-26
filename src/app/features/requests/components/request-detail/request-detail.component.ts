@@ -8,7 +8,7 @@ import { StatusColorPipe } from '../../pipes/status-color.pipe';
 @Component({
   selector: 'app-request-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, StatusColorPipe],
   templateUrl: './request-detail.component.html',
   styleUrl: './request-detail.component.css'
 })
