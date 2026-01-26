@@ -6,8 +6,7 @@ import { RequestDetailComponent } from './features/requests/components/request-d
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/skills',
-    pathMatch: 'full'
+    loadChildren: () => import('./features/home/home.routes').then(m => m.homeRoutes)
   },
   {
     path: 'auth',
@@ -27,6 +26,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: '/skills'
+    redirectTo: '/'
   }
 ];

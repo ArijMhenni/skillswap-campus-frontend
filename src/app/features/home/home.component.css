@@ -1,0 +1,24 @@
+/* Component styles - using Tailwind CSS classes in template */
+
+/* Smooth scroll behavior */
+:host {
+  display: block;
+}
+
+/* Animation pour les cards au hover */
+.group:hover {
+  transform: translateY(-2px);
+}
+
+/* Gradient overlay animation */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
