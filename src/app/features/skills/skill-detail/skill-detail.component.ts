@@ -7,11 +7,13 @@ import { SkillCategory, SkillType } from '../../../core/models/skill.enum';
 import { getUserDisplayName, getUserInitials } from '../../../core/models/user.model';
 import { ERROR_MESSAGES } from '../../../core/constants/error-messages.constant';
 import { SUCCESS_MESSAGES, CONFIRMATION_MESSAGES, SKILL_CATEGORY_LABELS, SKILL_TYPE_DETAIL_LABELS, TEMP_USER_ID } from '../../../core/constants/app.constant';
+import { CreateRequestModalComponent } from "../../requests/components/create-request-modal/create-request-modal.component";
+
 
 @Component({
   selector: 'app-skill-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CreateRequestModalComponent],
   templateUrl: './skill-detail.component.html',
   styleUrls: ['./skill-detail.component.css'],
 })
@@ -156,5 +158,20 @@ export class SkillDetailComponent implements OnInit {
       month: 'long',
       day: 'numeric',
     });
+  }
+
+  showModal = signal<boolean>(false);
+
+  openRequestModal(): void {
+    this.showModal.set(true);
+  }
+
+  closeModal(): void {
+    this.showModal.set(false);
+  }
+
+  onRequestCreated(): void {
+    alert('Demande envoyée avec succès!');
+    this.showModal.set(false);
   }
 }

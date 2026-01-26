@@ -5,7 +5,20 @@
     </svg>
     <span>Retour au Marketplace</span>
   </button>
+  <button 
+    (click)="openRequestModal()"
+    class="px-6 py-3 bg-blue-600 text-white rounded-lg">
+    Demander cette compétence
+  </button>
 
+  @if (showModal()) {
+    <app-create-request-modal
+      [skillId]="skill()?.id || ''"
+      [skillTitle]="skill()?.title || ''"
+      (requestCreated)="onRequestCreated()"
+      (modalClosed)="closeModal()">
+    </app-create-request-modal>
+  }
   @if (loading()) {
     <div class="loading-state">
       <div class="spinner"></div>
