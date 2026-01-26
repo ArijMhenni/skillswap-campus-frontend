@@ -91,11 +91,7 @@ export class SkillDetailComponent implements OnInit {
   }
 
   requestSkill(): void {
-    const currentSkill = this.skill();
-    // TODO: Implémenter la logique de demande de compétence
-    alert(
-      `Demande de compétence "${currentSkill?.title}" envoyée à ${currentSkill?.user?.firstName}`
-    );
+    this.openRequestModal();
   }
 
   offerHelp(): void {
