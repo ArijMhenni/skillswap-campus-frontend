@@ -1,0 +1,107 @@
+<div class="user-profile-container">
+  <button class="btn-back" (click)="goBack()">
+    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    <span>Retour</span>
+  </button>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Chargement du profil...</p>
+    </div>
+  }
+
+  @if (error() && !loading()) {
+    <div class="error-state">
+      <div class="error-icon">⚠️</div>
+      <p class="error-message">{{ error() }}</p>
+    </div>
+  }
+
+  @if (user() && !loading() && !error()) {
+    <div class="profile-header">
+      <div class="user-avatar">
+        {{ getUserInitials() }}
+      </div>
+      <div class="user-info">
+        <h1 class="user-name">{{ getUserFullName() }}</h1>
+        <p class="user-email">{{ user()!.email }}</p>
+        <div class="user-stats">
+          <div class="stat-item">
+            <span class="stat-value">{{ offeredSkillsCount() }}</span>
+            <span class="stat-label">Compétences offertes</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">{{ requestedSkillsCount() }}</span>
+            <span class="stat-label">Compétences recherchées</span>
+          </div>
+        </div>
+        @if (isOwnProfile()) {
+          <button class="btn-edit" (click)="goToEditProfile()">
+            Modifier mon profil
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (user()?.offeredSkills && user()!.offeredSkills!.length > 0) {
+      <div class="skills-section">
+        <h2 class="section-title">Compétences offertes</h2>
+        <div class="skills-tags">
+          @for (skill of user()!.offeredSkills!; track skill) {
+            <span class="skill-tag skill-offer">{{ skill }}</span>
+          }
+        </div>
+      </div>
+    }
+
+    @if (user()?.wantedSkills && user()!.wantedSkills!.length > 0) {
+      <div class="skills-section">
+        <h2 class="section-title">Compétences recherchées</h2>
+        <div class="skills-tags">
+          @for (skill of user()!.wantedSkills!; track skill) {
+            <span class="skill-tag skill-request">{{ skill }}</span>
+          }
+        </div>
+      </div>
+    }
+
+    @if (user()!.availability) {
+      <div class="availability-section">
+        <h2 class="section-title">Disponibilité</h2>
+        <p class="availability-text">{{ user()!.availability }}</p>
+      </div>
+    }
+
+    @if (userSkills().length > 0) {
+      <div class="user-skills-section">
+        <h2 class="section-title">Annonces de compétences ({{ userSkills().length }})</h2>
+        <div class="skills-grid">
+          @for (skill of userSkills(); track skill.id) {
+            <div class="skill-card" (click)="goToSkillDetail(skill.id)">
+              <div class="skill-card-header">
+                <span class="skill-type-badge" [class.badge-offer]="skill.type === SkillType.OFFERED" [class.badge-request]="skill.type === SkillType.WANTED">
+                  {{ skill.type === SkillType.OFFERED ? 'Offre' : 'Demande' }}
+                </span>
+              </div>
+              <h3 class="skill-title">{{ skill.title }}</h3>
+              <p class="skill-description">{{ skill.description }}</p>
+              <div class="skill-meta">
+                <span class="meta-item">⏱️ {{ skill.estimatedTime }}h</span>
+                <span class="meta-item">📅 {{ formatDate(skill.createdAt) }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    @if (userSkills().length === 0) {
+      <div class="empty-state">
+        <p>Aucune annonce de compétence publiée</p>
+      </div>
+    }
+  }
+</div>

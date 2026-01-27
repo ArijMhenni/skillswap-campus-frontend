@@ -43,16 +43,38 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
-    // Initialize skills arrays
-    this.offeredSkills = this.currentUser.offeredSkills || [];
-    this.wantedSkills = this.currentUser.wantedSkills || [];
+    // Charger le profil depuis l'API pour obtenir les données les plus récentes
+    this.loadProfile();
+  }
 
-    // Initialize form
-    this.profileForm = this.fb.group({
-      firstName: [this.currentUser.firstName, [Validators.required, Validators.minLength(2)]],
-      lastName: [this.currentUser.lastName, [Validators.required, Validators.minLength(2)]],
-      email: [{ value: this.currentUser.email, disabled: true }],
-      availability: [this.currentUser.availability || '']
+  loadProfile(): void {
+    this.authService.getProfile().subscribe({
+      next: (user) => {
+        this.currentUser = user;
+        this.offeredSkills = user.offeredSkills || [];
+        this.wantedSkills = user.wantedSkills || [];
+        
+        // Initialize form with fresh data
+        this.profileForm = this.fb.group({
+          firstName: [user.firstName, [Validators.required, Validators.minLength(2)]],
+          lastName: [user.lastName, [Validators.required, Validators.minLength(2)]],
+          email: [{ value: user.email, disabled: true }],
+          availability: [user.availability || '']
+        });
+      },
+      error: (error) => {
+        console.error('Failed to load profile:', error);
+        // Fallback to cached user data
+        this.offeredSkills = this.currentUser?.offeredSkills || [];
+        this.wantedSkills = this.currentUser?.wantedSkills || [];
+        
+        this.profileForm = this.fb.group({
+          firstName: [this.currentUser?.firstName, [Validators.required, Validators.minLength(2)]],
+          lastName: [this.currentUser?.lastName, [Validators.required, Validators.minLength(2)]],
+          email: [{ value: this.currentUser?.email, disabled: true }],
+          availability: [this.currentUser?.availability || '']
+        });
+      }
     });
   }
 

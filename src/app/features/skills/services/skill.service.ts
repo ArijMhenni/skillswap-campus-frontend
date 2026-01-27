@@ -69,13 +69,10 @@ export class SkillService {
    * Create a new skill
    * @param data - Skill data
    * @returns Observable of created skill
+   * @note JWT token is automatically added by authInterceptor
    */
   createSkill(data: CreateSkillDto): Observable<Skill> {
     return this.http.post<Skill>(this.apiUrl, data);
-    // TODO: Ajouter le token JWT dans les headers quand l'authentification sera implémentée
-    // return this.http.post<Skill>(this.apiUrl, data, {
-    //   headers: { Authorization: `Bearer ${token}` }
-    // });
   }
 
   /**
@@ -83,25 +80,19 @@ export class SkillService {
    * @param id - Skill ID
    * @param data - Updated skill data
    * @returns Observable of updated skill
+   * @note JWT token is automatically added by authInterceptor
    */
   updateSkill(id: string, data: UpdateSkillDto): Observable<Skill> {
     return this.http.patch<Skill>(`${this.apiUrl}/${id}`, data);
-    // TODO: Ajouter le token JWT dans les headers quand l'authentification sera implémentée
-    // return this.http.patch<Skill>(`${this.apiUrl}/${id}`, data, {
-    //   headers: { Authorization: `Bearer ${token}` }
-    // });
   }
 
   /**
    * Delete a skill (soft delete)
    * @param id - Skill ID
    * @returns Observable of void
+   * @note JWT token is automatically added by authInterceptor
    */
   deleteSkill(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
-    // TODO: Ajouter le token JWT dans les headers quand l'authentification sera implémentée
-    // return this.http.delete<void>(`${this.apiUrl}/${id}`, {
-    //   headers: { Authorization: `Bearer ${token}` }
-    // });
   }
 }

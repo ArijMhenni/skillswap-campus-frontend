@@ -326,6 +326,15 @@
   margin-bottom: 20px;
   padding-bottom: 20px;
   border-bottom: 1px solid #e5e7eb;
+  transition: all 0.2s;
+}
+
+.user-profile:hover {
+  background-color: #f9fafb;
+  padding: 12px;
+  margin: -12px -12px 20px -12px;
+  border-radius: 8px;
+  transform: translateX(2px);
 }
 
 .avatar {
