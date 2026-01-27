@@ -1,39 +1,45 @@
 <div class="avatar-upload-container">
-  <div class="avatar-wrapper" [class]="getSizeClass()">
-    
-    @if (getDisplayAvatar()) {
-      <img 
-        [src]="getDisplayAvatar()!" 
-        alt="Profile Avatar" 
-        class="avatar-image"
-      />
-    } @else {
-      <div class="avatar-placeholder">
-        <span class="avatar-initials">{{ userInitials() }}</span>
-      </div>
-    }
-
-    
-    <div class="avatar-overlay" (click)="triggerFileInput()">
-      @if (isUploading()) {
-        <svg class="animate-spin w-6 h-6 text-white" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
+  <div class="avatar-wrapper" [class]="getSizeClasses()">
+    <!-- Show avatar or initials -->
+    <div class="avatar-display">
+      @if (getAvatarUrl()) {
+        <img 
+          [src]="getAvatarUrl()!" 
+          alt="Avatar" 
+          class="avatar-image"
+        />
       } @else {
-        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-        </svg>
+        <div class="avatar-initials">
+          {{ userInitials }}
+        </div>
       }
     </div>
 
-    
-    @if (getDisplayAvatar() && !isUploading()) {
+    <!-- Upload overlay -->
+    <label class="upload-overlay" [class.uploading]="isUploading()">
+      @if (isUploading()) {
+        <div class="spinner"></div>
+      } @else {
+        <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        <span class="upload-text">Change Photo</span>
+      }
+      <input 
+        type="file" 
+        accept="image/jpeg,image/png,image/jpg" 
+        (change)="onFileSelected($event)"
+        class="file-input"
+      />
+    </label>
+
+    <!-- Remove button -->
+    @if (getAvatarUrl()) {
       <button 
         type="button"
-        class="remove-btn"
-        (click)="removeAvatar(); $event.stopPropagation()"
+        (click)="removeAvatar()"
+        class="remove-button"
         title="Remove avatar"
       >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -43,22 +49,8 @@
     }
   </div>
 
- 
-  <input
-    id="avatar-input"
-    type="file"
-    accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-    (change)="onFileSelected($event)"
-    class="hidden"
-  />
-
-
+  <!-- Error message -->
   @if (errorMessage()) {
-    <p class="mt-2 text-sm text-red-600">{{ errorMessage() }}</p>
+    <p class="error-message">{{ errorMessage() }}</p>
   }
-
-  
-  <p class="mt-2 text-xs text-gray-500 text-center">
-    Click to upload (JPG, PNG, GIF, WebP - Max 5MB)
-  </p>
 </div>

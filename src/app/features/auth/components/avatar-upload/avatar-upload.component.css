@@ -1,86 +1,144 @@
 .avatar-upload-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: inline-block;
+  position: relative;
+  padding: 0.5rem; /* ✅ Espace pour que le bouton X sorte */
 }
 
 .avatar-wrapper {
   position: relative;
   border-radius: 50%;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: visible; /* ✅ IMPORTANT: Changer de 'hidden' à 'visible' */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.avatar-wrapper:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+.avatar-display {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  border-radius: 50%;
+  overflow: hidden; /* ✅ Mettre l'overflow hidden ici à la place */
 }
 
 .avatar-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.avatar-placeholder {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #3b82f6, #6366f1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-radius: 50%;
 }
 
 .avatar-initials {
-  font-size: 2rem;
-  font-weight: 700;
-  color: white;
-}
-
-.avatar-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+  border-radius: 50%;
 }
 
-.avatar-wrapper:hover .avatar-overlay {
+/* Upload overlay */
+.upload-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.avatar-wrapper:hover .upload-overlay {
   opacity: 1;
 }
 
-.remove-btn {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  background: #ef4444;
+.upload-overlay.uploading {
+  opacity: 1;
+  cursor: not-allowed;
+}
+
+.upload-icon {
+  width: 2rem;
+  height: 2rem;
   color: white;
-  border: none;
+  margin-bottom: 0.5rem;
+}
+
+.upload-text {
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.file-input {
+  display: none;
+}
+
+/* ✅ Remove button - À L'EXTÉRIEUR */
+.remove-button {
+  position: absolute;
+  top: 0;      /* ✅ Position relative au .avatar-wrapper */
+  right: 0;    /* ✅ Position relative au .avatar-wrapper */
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
-  width: 24px;
-  height: 24px;
+  background: #ef4444;
+  border: 3px solid white;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: all 0.2s;
   z-index: 10;
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-.avatar-wrapper:hover .remove-btn {
-  opacity: 1;
-}
-
-.remove-btn:hover {
+.remove-button:hover {
   background: #dc2626;
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5);
 }
 
-.hidden {
-  display: none;
+.remove-button:active {
+  transform: scale(1.05);
+}
+
+.remove-button svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Spinner */
+.spinner {
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid white;
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error message */
+.error-message {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  text-align: center;
 }

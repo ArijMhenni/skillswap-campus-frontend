@@ -98,4 +98,27 @@ export class ImageUploadService {
       reader.readAsDataURL(file);
     });
   }
+
+  /**
+   * ✅ Process image: validate + resize
+   * All-in-one method for avatar upload
+   */
+  async processImage(file: File): Promise<{ valid: boolean; base64?: string; error?: string }> {
+    // Validate first
+    const validation = this.validateImage(file);
+    if (!validation.valid) {
+      return validation;
+    }
+
+    // Resize and convert
+    try {
+      const base64 = await this.resizeImage(file);
+      return { valid: true, base64 };
+    } catch (error) {
+      return { 
+        valid: false, 
+        error: error instanceof Error ? error.message : 'Failed to process image' 
+      };
+    }
+  }
 }

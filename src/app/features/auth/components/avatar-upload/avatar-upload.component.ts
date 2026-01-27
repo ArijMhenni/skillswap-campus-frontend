@@ -1,4 +1,4 @@
-import { Component, input, output, signal, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ImageUploadService } from '../../../../core/services/image-upload.service';
 
@@ -7,55 +7,44 @@ import { ImageUploadService } from '../../../../core/services/image-upload.servi
   standalone: true,
   imports: [CommonModule],
   templateUrl: './avatar-upload.component.html',
-  styleUrls: ['./avatar-upload.component.css']
+  styleUrl: './avatar-upload.component.css'
 })
 export class AvatarUploadComponent {
-  private imageService = inject(ImageUploadService);
+  @Input() currentAvatar: string | null = null;
+  @Input() userInitials: string = '';
+  @Input() size: 'small' | 'medium' | 'large' = 'medium';
+  @Output() avatarChange = new EventEmitter<string>();
 
-  // Inputs (modern signals)
-  currentAvatar = input<string | null>(null);
-  userInitials = input<string>('U');
-  size = input<'small' | 'medium' | 'large'>('medium');
-
-  // Outputs (modern approach)
-  avatarChange = output<string>();
-
-  // Local state with signals
-  isUploading = signal(false);
-  errorMessage = signal<string>('');
   previewUrl = signal<string | null>(null);
+  isUploading = signal<boolean>(false);
+  errorMessage = signal<string>('');
+  isRemoved = signal<boolean>(false);
+
+  constructor(private imageUploadService: ImageUploadService) {}
 
   async onFileSelected(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    
-    if (!file) return;
+    if (!input.files || input.files.length === 0) return;
 
-    // Reset error
+    const file = input.files[0];
     this.errorMessage.set('');
+    this.isRemoved.set(false);
 
-    // Validate image
-    const validation = this.imageService.validateImage(file);
-    if (!validation.valid) {
-      this.errorMessage.set(validation.error || 'Invalid image');
-      return;
-    }
+    this.isUploading.set(true);
 
     try {
-      this.isUploading.set(true);
-
-      // Resize and convert to base64
-      const base64 = await this.imageService.resizeImage(file, 400, 400);
+      //  Le service retourne { valid, base64?, error? }
+      const result = await this.imageUploadService.processImage(file);
       
-      // Set preview
-      this.previewUrl.set(base64);
+      if (!result.valid || !result.base64) {
+        this.errorMessage.set(result.error || 'Failed to process image');
+        return;
+      }
 
-      // Emit to parent
-      this.avatarChange.emit(base64);
-
+      this.previewUrl.set(result.base64);
+      this.avatarChange.emit(result.base64);
     } catch (error) {
-      console.error('Error uploading image:', error);
-      this.errorMessage.set('Failed to upload image. Please try again.');
+      this.errorMessage.set('Failed to process image. Please try again.');
     } finally {
       this.isUploading.set(false);
     }
@@ -63,24 +52,20 @@ export class AvatarUploadComponent {
 
   removeAvatar(): void {
     this.previewUrl.set(null);
+    this.isRemoved.set(true);
     this.avatarChange.emit('');
   }
 
-  triggerFileInput(): void {
-    const fileInput = document.getElementById('avatar-input') as HTMLInputElement;
-    fileInput?.click();
+  getAvatarUrl(): string | null {
+    if (this.isRemoved()) return null;
+    return this.previewUrl() || this.currentAvatar;
   }
 
-  getDisplayAvatar(): string | null {
-    return this.previewUrl() || this.currentAvatar() || null;
-  }
-
-  getSizeClass(): string {
-    const sizeMap = {
-      small: 'w-16 h-16',
-      medium: 'w-24 h-24',
-      large: 'w-32 h-32'
-    };
-    return sizeMap[this.size()];
+  getSizeClasses(): string {
+    switch (this.size) {
+      case 'small': return 'w-12 h-12 text-lg';
+      case 'medium': return 'w-20 h-20 text-2xl';
+      case 'large': return 'w-24 h-24 text-3xl';
+    }
   }
 }

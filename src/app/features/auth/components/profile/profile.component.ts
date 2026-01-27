@@ -1,7 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { AuthService } from '../../../../core/services/auth.service';
 import { User } from '../../../../core/models/user.model';
 import { AvatarUploadComponent } from '../avatar-upload/avatar-upload.component';
@@ -11,39 +10,35 @@ import { AvatarUploadComponent } from '../avatar-upload/avatar-upload.component'
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule, AvatarUploadComponent],
   templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.css']
+  styleUrl: './profile.component.css'
 })
 export class ProfileComponent implements OnInit {
-  private fb = inject(FormBuilder);
-  private authService = inject(AuthService);
-  private router = inject(Router);
-
   currentUser: User | null = null;
-  profileForm!: FormGroup;
-  
+  profileForm: FormGroup;
   isEditing = false;
   isLoading = false;
   successMessage = '';
   errorMessage = '';
-
-  // Skills management
-  newOfferedSkill = '';
-  newWantedSkill = '';
+  
   offeredSkills: string[] = [];
   wantedSkills: string[] = [];
-
-  // Avatar management
+  newOfferedSkill = '';
+  newWantedSkill = '';
+  
   newAvatar: string | undefined = undefined;
 
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService
+  ) {
+    this.profileForm = this.fb.group({
+      firstName: ['', [Validators.required, Validators.maxLength(50)]],
+      lastName: ['', [Validators.required, Validators.maxLength(50)]],
+      availability: ['', [Validators.maxLength(500)]]
+    });
+  }
+
   ngOnInit(): void {
-    this.currentUser = this.authService.getCurrentUser();
-
-    if (!this.currentUser) {
-      this.router.navigate(['/auth/login']);
-      return;
-    }
-
-    // Charger le profil depuis l'API pour obtenir les données les plus récentes
     this.loadProfile();
   }
 
@@ -51,43 +46,19 @@ export class ProfileComponent implements OnInit {
     this.authService.getProfile().subscribe({
       next: (user) => {
         this.currentUser = user;
+        this.profileForm.patchValue({
+          firstName: user.firstName,
+          lastName: user.lastName,
+          availability: user.availability || ''
+        });
         this.offeredSkills = user.offeredSkills || [];
         this.wantedSkills = user.wantedSkills || [];
-        
-        // Initialize form with fresh data
-        this.profileForm = this.fb.group({
-          firstName: [user.firstName, [Validators.required, Validators.minLength(2)]],
-          lastName: [user.lastName, [Validators.required, Validators.minLength(2)]],
-          email: [{ value: user.email, disabled: true }],
-          availability: [user.availability || '']
-        });
       },
       error: (error) => {
-        console.error('Failed to load profile:', error);
-        // Fallback to cached user data
-        this.offeredSkills = this.currentUser?.offeredSkills || [];
-        this.wantedSkills = this.currentUser?.wantedSkills || [];
-        
-        this.profileForm = this.fb.group({
-          firstName: [this.currentUser?.firstName, [Validators.required, Validators.minLength(2)]],
-          lastName: [this.currentUser?.lastName, [Validators.required, Validators.minLength(2)]],
-          email: [{ value: this.currentUser?.email, disabled: true }],
-          availability: [this.currentUser?.availability || '']
-        });
+        console.error('Error loading profile:', error);
+        this.errorMessage = 'Failed to load profile';
       }
     });
-  }
-
-  get firstName() {
-    return this.profileForm.get('firstName');
-  }
-
-  get lastName() {
-    return this.profileForm.get('lastName');
-  }
-
-  get availability() {
-    return this.profileForm.get('availability');
   }
 
   toggleEdit(): void {
@@ -97,7 +68,6 @@ export class ProfileComponent implements OnInit {
     this.newAvatar = undefined;
     
     if (!this.isEditing) {
-      // Reset form if canceling
       this.profileForm.patchValue({
         firstName: this.currentUser?.firstName,
         lastName: this.currentUser?.lastName,
@@ -108,12 +78,59 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  // Avatar Management
   onAvatarChange(base64: string): void {
-    this.newAvatar = base64 || '';
+    this.newAvatar = base64;
   }
 
-  // Offered Skills Management
+  onSubmit(): void {
+    if (this.profileForm.invalid) {
+      this.profileForm.markAllAsTouched();
+      return;
+    }
+
+    this.isLoading = true;
+    this.successMessage = '';
+    this.errorMessage = '';
+
+    const updateData: any = {
+      firstName: this.profileForm.value.firstName,
+      lastName: this.profileForm.value.lastName,
+      offeredSkills: this.offeredSkills.length > 0 ? this.offeredSkills : undefined,
+      wantedSkills: this.wantedSkills.length > 0 ? this.wantedSkills : undefined,
+      availability: this.profileForm.value.availability || undefined,
+    };
+
+    
+    if (this.newAvatar !== undefined) {
+      updateData.avatar = this.newAvatar === '' ? null : this.newAvatar;
+      console.log('Adding avatar to payload:', updateData.avatar);
+    } else {
+      console.log('newAvatar is undefined, NOT adding to payload');
+    }
+
+    
+
+    this.authService.updateProfile(updateData).subscribe({
+      next: (user) => {
+        
+        this.currentUser = user;
+        this.isLoading = false;
+        this.isEditing = false;
+        this.successMessage = 'Profile updated successfully!';
+        setTimeout(() => this.successMessage = '', 3000);
+      },
+      error: (error) => {
+        console.error('Error:', error);
+        this.isLoading = false;
+        this.errorMessage = error.error?.message || 'Failed to update profile. Please try again.';
+      }
+    });
+  }
+
+  onLogout(): void {
+    this.authService.logout();
+  }
+
   addOfferedSkill(): void {
     const skill = this.newOfferedSkill.trim();
     if (skill && !this.offeredSkills.includes(skill)) {
@@ -133,7 +150,6 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  // Wanted Skills Management
   addWantedSkill(): void {
     const skill = this.newWantedSkill.trim();
     if (skill && !this.wantedSkills.includes(skill)) {
@@ -153,49 +169,19 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  onSubmit(): void {
-  if (this.profileForm.invalid) {
-    this.profileForm.markAllAsTouched();
-    return;
-  }
-
-  this.isLoading = true;
-  this.successMessage = '';
-  this.errorMessage = '';
-
-  const updateData = {
-    firstName: this.profileForm.value.firstName,
-    lastName: this.profileForm.value.lastName,
-    offeredSkills: this.offeredSkills.length > 0 ? this.offeredSkills : undefined,
-    wantedSkills: this.wantedSkills.length > 0 ? this.wantedSkills : undefined,
-    availability: this.profileForm.value.availability || undefined,
-    avatar: this.newAvatar === '' ? undefined : this.newAvatar
-  };
-
-  this.authService.updateProfile(updateData).subscribe({
-    next: (user) => {
-      this.currentUser = user;
-      this.isLoading = false;
-      this.isEditing = false;
-      this.newAvatar = undefined;
-      this.successMessage = 'Profile updated successfully!';
-      setTimeout(() => this.successMessage = '', 3000);
-    },
-    error: (error) => {
-      this.isLoading = false;
-      this.errorMessage = error.error?.message || 'Failed to update profile. Please try again.';
-    }
-  });
-}
-
   getUserInitials(): string {
     if (!this.currentUser) return '?';
-    const first = this.currentUser.firstName?.charAt(0).toUpperCase() || '';
-    const last = this.currentUser.lastName?.charAt(0).toUpperCase() || '';
-    return first + last || this.currentUser.email.charAt(0).toUpperCase();
+    const first = this.currentUser.firstName?.charAt(0) || '';
+    const last = this.currentUser.lastName?.charAt(0) || '';
+    return (first + last).toUpperCase();
   }
 
-  onLogout(): void {
-    this.authService.logout();
+  // Getters pour la validation des champs
+  get firstName() {
+    return this.profileForm.get('firstName');
+  }
+
+  get lastName() {
+    return this.profileForm.get('lastName');
   }
 }
