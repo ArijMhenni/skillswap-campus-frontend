@@ -34,6 +34,11 @@ export class NavbarComponent implements OnInit {
     });
   }
 
+
+  isAuthenticated(): boolean {
+    return this.authService.isAuthenticated();
+  }
+
   getUserInitials(): string {
     if (!this.currentUser) return 'U';
     const first = this.currentUser.firstName?.charAt(0).toUpperCase() || '';
@@ -41,24 +46,15 @@ export class NavbarComponent implements OnInit {
     return first + last || this.currentUser.email.charAt(0).toUpperCase();
   }
 
-  shouldShowLogout(): boolean {
-    // Hide logout button ONLY on login and register pages
-    return !this.currentUrl.startsWith('/auth/login') && 
-           !this.currentUrl.startsWith('/auth/register');
-  }
-
   onSearchClick(): void {
     console.log('Search clicked');
-    // TODO: Implement search functionality
   }
 
   onNotificationClick(): void {
     console.log('Notifications clicked');
-    // TODO: Implement notifications
   }
 
   onProfileClick(): void {
-    // Navigate to profile page
     this.router.navigate(['/auth/profile']);
   }
 

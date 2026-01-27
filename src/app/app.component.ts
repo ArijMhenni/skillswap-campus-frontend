@@ -1,13 +1,36 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { NavbarComponent } from './core/shared/components/navbar/navbar.component';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NavbarComponent],
+  standalone: true,
+  imports: [CommonModule, RouterOutlet, NavbarComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent {
   title = 'SkillSwap Campus';
+  currentUrl = '';
+
+  constructor(private router: Router) {
+    // Écouter les changements de route
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        this.currentUrl = event.url;
+      });
+  }
+
+  shouldShowNavbar(): boolean {
+    // Liste des routes où la navbar ne doit PAS apparaître
+    const hideNavbarRoutes = [
+      '/auth/login', 
+      '/auth/register',
+      '/auth/forgot-password'
+    ];
+    return !hideNavbarRoutes.includes(this.currentUrl);
+  }
 }

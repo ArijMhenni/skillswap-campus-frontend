@@ -19,6 +19,7 @@ export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   isLoading = false;
   errorMessage = '';
+  showPassword = false;
 
   ngOnInit(): void {
     // Redirect if already logged in
@@ -40,6 +41,9 @@ export class LoginComponent implements OnInit {
     return this.loginForm.get('password');
   }
 
+  togglePassword(): void {
+    this.showPassword = !this.showPassword;
+  }
   onSubmit(): void {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
