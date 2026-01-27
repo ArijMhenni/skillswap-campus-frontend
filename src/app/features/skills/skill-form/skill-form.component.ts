@@ -8,6 +8,7 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SkillService } from '../services/skill.service';
+import { AuthService } from '../../../core/services/auth.service';
 import {
   CreateSkillDto,
   UpdateSkillDto,
@@ -32,6 +33,7 @@ export class SkillFormComponent implements OnInit {
   loading = signal(false);
   submitting = signal(false);
   error = signal<string | null>(null);
+  currentSkill = signal<Skill | null>(null);
 
   // Enums for template
   categories = Object.values(SkillCategory);
@@ -41,7 +43,8 @@ export class SkillFormComponent implements OnInit {
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private skillService: SkillService
+    private skillService: SkillService,
+    private authService: AuthService
   ) {
     this.skillForm = this.createForm();
   }
@@ -87,6 +90,18 @@ export class SkillFormComponent implements OnInit {
 
     this.skillService.getSkillById(id).subscribe({
       next: (skill: Skill) => {
+        // Vérifier que l'utilisateur est le propriétaire
+        const currentUser = this.authService.getCurrentUser();
+        if (!currentUser || skill.user?.id !== currentUser.id) {
+          this.error.set('Vous n\'êtes pas autorisé à modifier cette compétence.');
+          this.loading.set(false);
+          setTimeout(() => {
+            this.router.navigate(['/skills', id]);
+          }, 2000);
+          return;
+        }
+
+        this.currentSkill.set(skill);
         this.skillForm.patchValue({
           title: skill.title,
           description: skill.description,
@@ -100,6 +115,9 @@ export class SkillFormComponent implements OnInit {
         this.error.set(ERROR_MESSAGES.SKILL.LOAD_ERROR);
         console.error('Error loading skill:', err);
         this.loading.set(false);
+        setTimeout(() => {
+          this.router.navigate(['/skills']);
+        }, 2000);
       },
     });
   }
@@ -129,7 +147,8 @@ export class SkillFormComponent implements OnInit {
         this.router.navigate(['/skills', createdSkill.id]);
       },
       error: (err) => {
-        this.error.set(ERROR_MESSAGES.SKILL.CREATE_ERROR);
+        const errorMessage = err.error?.message || ERROR_MESSAGES.SKILL.CREATE_ERROR;
+        this.error.set(errorMessage);
         console.error('Error creating skill:', err);
         this.submitting.set(false);
       },
@@ -145,7 +164,8 @@ export class SkillFormComponent implements OnInit {
         this.router.navigate(['/skills', updatedSkill.id]);
       },
       error: (err) => {
-        this.error.set(ERROR_MESSAGES.SKILL.UPDATE_ERROR);
+        const errorMessage = err.error?.message || ERROR_MESSAGES.SKILL.UPDATE_ERROR;
+        this.error.set(errorMessage);
         console.error('Error updating skill:', err);
         this.submitting.set(false);
       },

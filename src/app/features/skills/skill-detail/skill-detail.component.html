@@ -105,7 +105,7 @@
         @if (skill()!.user) {
           <div class="user-card">
             <h3 class="card-title">{{ skill()!.type === SkillType.OFFERED ? 'Proposé par' : 'Recherché par' }}</h3>
-            <div class="user-profile">
+            <div class="user-profile" (click)="goToUserProfile(skill()!.user!.id)" style="cursor: pointer;">
               <div class="avatar">
                 @if (skill()!.user!.avatar) {
                   <img [src]="skill()!.user!.avatar" [alt]="getUserName()">

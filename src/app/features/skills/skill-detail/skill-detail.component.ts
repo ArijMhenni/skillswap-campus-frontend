@@ -2,11 +2,12 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SkillService } from '../services/skill.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Skill } from '../../../core/models/skill.model';
 import { SkillCategory, SkillType } from '../../../core/models/skill.enum';
 import { getUserDisplayName, getUserInitials } from '../../../core/models/user.model';
 import { ERROR_MESSAGES } from '../../../core/constants/error-messages.constant';
-import { SUCCESS_MESSAGES, CONFIRMATION_MESSAGES, SKILL_CATEGORY_LABELS, SKILL_TYPE_DETAIL_LABELS, TEMP_USER_ID } from '../../../core/constants/app.constant';
+import { SUCCESS_MESSAGES, CONFIRMATION_MESSAGES, SKILL_CATEGORY_LABELS, SKILL_TYPE_DETAIL_LABELS } from '../../../core/constants/app.constant';
 import { CreateRequestModalComponent } from "../../requests/components/create-request-modal/create-request-modal.component";
 
 
@@ -25,16 +26,24 @@ export class SkillDetailComponent implements OnInit {
   // Expose SkillType enum to template
   SkillType = SkillType;
 
-  // TODO: Remplacer par l'ID de l'utilisateur connecté depuis le service d'authentification
-  currentUserId = signal(TEMP_USER_ID);
-
   // Computed property pour vérifier si l'utilisateur est propriétaire
-  isOwner = computed(() => this.skill()?.userId === this.currentUserId());
+  isOwner = computed(() => {
+    const currentSkill = this.skill();
+    const currentUser = this.authService.getCurrentUser();
+    
+    if (!currentSkill || !currentUser) {
+      return false;
+    }
+    
+    // Vérifier si l'utilisateur connecté est le propriétaire de la compétence
+    return currentSkill.user?.id === currentUser.id;
+  });
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private skillService: SkillService
+    private skillService: SkillService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -65,25 +74,40 @@ export class SkillDetailComponent implements OnInit {
 
   editSkill(): void {
     const currentSkill = this.skill();
-    if (currentSkill) {
-      this.router.navigate(['/skills', currentSkill.id, 'edit']);
+    if (!currentSkill) return;
+
+    // Vérifier que l'utilisateur est bien le propriétaire
+    if (!this.isOwner()) {
+      alert('Vous n\'êtes pas autorisé à modifier cette compétence.');
+      return;
     }
+
+    this.router.navigate(['/skills', currentSkill.id, 'edit']);
   }
 
   deleteSkill(): void {
     const currentSkill = this.skill();
     if (!currentSkill) return;
 
+    // Vérifier que l'utilisateur est bien le propriétaire
+    if (!this.isOwner()) {
+      alert('Vous n\'êtes pas autorisé à supprimer cette compétence.');
+      return;
+    }
+
     const confirmed = confirm(CONFIRMATION_MESSAGES.SKILL.DELETE(currentSkill.title));
 
     if (confirmed) {
+      this.loading.set(true);
       this.skillService.deleteSkill(currentSkill.id).subscribe({
         next: () => {
           alert(SUCCESS_MESSAGES.SKILL.DELETED);
           this.router.navigate(['/skills']);
         },
         error: (err) => {
-          alert(ERROR_MESSAGES.SKILL.DELETE_ERROR);
+          this.loading.set(false);
+          const errorMessage = err.error?.message || ERROR_MESSAGES.SKILL.DELETE_ERROR;
+          alert(errorMessage);
           console.error('Error deleting skill:', err);
         },
       });
@@ -146,6 +170,12 @@ export class SkillDetailComponent implements OnInit {
 
   getUserReviewCount(): number {
     return this.skill()?.user?.reviewCount || 0;
+  }
+
+  goToUserProfile(userId: string): void {
+    if (userId) {
+      this.router.navigate(['/users', userId]);
+    }
   }
 
   formatDate(date: Date): string {
