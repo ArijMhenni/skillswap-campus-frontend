@@ -29,7 +29,8 @@ export class AppComponent {
     const hideNavbarRoutes = [
       '/auth/login', 
       '/auth/register',
-      '/auth/forgot-password'
+      '/auth/forgot-password',
+      '/auth/reset-password'
     ];
     return !hideNavbarRoutes.includes(this.currentUrl);
   }

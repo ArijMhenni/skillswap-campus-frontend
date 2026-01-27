@@ -138,4 +138,19 @@ export class AuthService {
     const userJson = localStorage.getItem(this.USER_KEY);
     return userJson ? JSON.parse(userJson) : null;
   }
+
+  // Forgot Password - Demander un email de réinitialisation
+  forgotPassword(email: string): Observable<any> {
+   return this.http.post(`${this.apiUrl}/auth/forgot-password`, { email });
+}
+
+// Reset Password - Réinitialiser avec token
+  resetPassword(token: string, newPassword: string): Observable<any> {
+   return this.http.post(`${this.apiUrl}/auth/reset-password`, { 
+    token, 
+    newPassword 
+  });
+}
+
+
 }
