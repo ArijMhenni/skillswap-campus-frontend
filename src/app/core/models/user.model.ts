@@ -7,7 +7,7 @@ export interface User {
   offeredSkills: string[] | null;
   wantedSkills: string[] | null;
   availability: string | null;
-  avatar?: string; 
+  avatar?: string | null ; 
   rating?: number; 
   reviewCount?: number; 
   createdAt?: string;

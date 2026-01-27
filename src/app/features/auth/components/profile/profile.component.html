@@ -44,9 +44,26 @@
         <div class="card text-center">
           <!-- Avatar -->
           <div class="mb-4">
-            <div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
-              {{ getUserInitials() }}
-            </div>
+            @if (isEditing) {
+              <app-avatar-upload
+                [currentAvatar]="currentUser?.avatar || null"
+                [userInitials]="getUserInitials()"
+                size="large"
+                (avatarChange)="onAvatarChange($event)"
+              />
+            } @else {
+              @if (currentUser?.avatar) {
+                <img 
+                  [src]="currentUser!.avatar" 
+                  alt="Profile" 
+                  class="w-24 h-24 mx-auto rounded-full object-cover shadow-lg"
+                />
+              } @else {
+                <div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+                  {{ getUserInitials() }}
+                </div>
+              }
+            }
           </div>
 
           <!-- User Info -->

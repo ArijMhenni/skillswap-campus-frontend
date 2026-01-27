@@ -4,11 +4,12 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } 
 import { Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { User } from '../../../../core/models/user.model';
+import { AvatarUploadComponent } from '../avatar-upload/avatar-upload.component';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, AvatarUploadComponent],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css']
 })
@@ -30,6 +31,9 @@ export class ProfileComponent implements OnInit {
   newWantedSkill = '';
   offeredSkills: string[] = [];
   wantedSkills: string[] = [];
+
+  // Avatar management
+  newAvatar: string | undefined = undefined;
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
@@ -68,6 +72,7 @@ export class ProfileComponent implements OnInit {
     this.isEditing = !this.isEditing;
     this.successMessage = '';
     this.errorMessage = '';
+    this.newAvatar = undefined;
     
     if (!this.isEditing) {
       // Reset form if canceling
@@ -79,6 +84,11 @@ export class ProfileComponent implements OnInit {
       this.offeredSkills = this.currentUser?.offeredSkills || [];
       this.wantedSkills = this.currentUser?.wantedSkills || [];
     }
+  }
+
+  // Avatar Management
+  onAvatarChange(base64: string): void {
+    this.newAvatar = base64 || '';
   }
 
   // Offered Skills Management
@@ -122,37 +132,39 @@ export class ProfileComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.profileForm.invalid) {
-      this.profileForm.markAllAsTouched();
-      return;
-    }
-
-    this.isLoading = true;
-    this.successMessage = '';
-    this.errorMessage = '';
-
-    const updateData = {
-      firstName: this.profileForm.value.firstName,
-      lastName: this.profileForm.value.lastName,
-      offeredSkills: this.offeredSkills.length > 0 ? this.offeredSkills : undefined,
-      wantedSkills: this.wantedSkills.length > 0 ? this.wantedSkills : undefined,
-      availability: this.profileForm.value.availability || undefined
-    };
-
-    this.authService.updateProfile(updateData).subscribe({
-      next: (user) => {
-        this.currentUser = user;
-        this.isLoading = false;
-        this.isEditing = false;
-        this.successMessage = 'Profile updated successfully!';
-        setTimeout(() => this.successMessage = '', 3000);
-      },
-      error: (error) => {
-        this.isLoading = false;
-        this.errorMessage = error.error?.message || 'Failed to update profile. Please try again.';
-      }
-    });
+  if (this.profileForm.invalid) {
+    this.profileForm.markAllAsTouched();
+    return;
   }
+
+  this.isLoading = true;
+  this.successMessage = '';
+  this.errorMessage = '';
+
+  const updateData = {
+    firstName: this.profileForm.value.firstName,
+    lastName: this.profileForm.value.lastName,
+    offeredSkills: this.offeredSkills.length > 0 ? this.offeredSkills : undefined,
+    wantedSkills: this.wantedSkills.length > 0 ? this.wantedSkills : undefined,
+    availability: this.profileForm.value.availability || undefined,
+    avatar: this.newAvatar === '' ? undefined : this.newAvatar
+  };
+
+  this.authService.updateProfile(updateData).subscribe({
+    next: (user) => {
+      this.currentUser = user;
+      this.isLoading = false;
+      this.isEditing = false;
+      this.newAvatar = undefined;
+      this.successMessage = 'Profile updated successfully!';
+      setTimeout(() => this.successMessage = '', 3000);
+    },
+    error: (error) => {
+      this.isLoading = false;
+      this.errorMessage = error.error?.message || 'Failed to update profile. Please try again.';
+    }
+  });
+}
 
   getUserInitials(): string {
     if (!this.currentUser) return '?';

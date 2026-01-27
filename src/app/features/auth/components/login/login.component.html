@@ -15,12 +15,14 @@
     <div class="card">
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
         <!-- Error Message -->
-        <div *ngIf="errorMessage" class="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg flex items-start">
-          <svg class="w-5 h-5 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-          </svg>
-          <span>{{ errorMessage }}</span>
-        </div>
+        @if (errorMessage) {
+          <div class="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg flex items-start">
+            <svg class="w-5 h-5 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+            </svg>
+            <span>{{ errorMessage }}</span>
+          </div>
+        }
 
         <!-- Email Field -->
         <div class="mb-4">
@@ -35,10 +37,16 @@
             [class.input-error]="email?.invalid && email?.touched"
             placeholder="you@campus.com"
           />
-          <div *ngIf="email?.invalid && email?.touched" class="mt-1 text-sm text-red-600">
-            <p *ngIf="email?.errors?.['required']">Email is required</p>
-            <p *ngIf="email?.errors?.['email']">Please enter a valid email</p>
-          </div>
+          @if (email?.invalid && email?.touched) {
+            <div class="mt-1 text-sm text-red-600">
+              @if (email?.errors?.['required']) {
+                <p>Email is required</p>
+              }
+              @if (email?.errors?.['email']) {
+                <p>Please enter a valid email</p>
+              }
+            </div>
+          }
         </div>
 
         <!-- Password Field -->
@@ -54,10 +62,16 @@
             [class.input-error]="password?.invalid && password?.touched"
             placeholder="••••••••"
           />
-          <div *ngIf="password?.invalid && password?.touched" class="mt-1 text-sm text-red-600">
-            <p *ngIf="password?.errors?.['required']">Password is required</p>
-            <p *ngIf="password?.errors?.['minlength']">Password must be at least 6 characters</p>
-          </div>
+          @if (password?.invalid && password?.touched) {
+            <div class="mt-1 text-sm text-red-600">
+              @if (password?.errors?.['required']) {
+                <p>Password is required</p>
+              }
+              @if (password?.errors?.['minlength']) {
+                <p>Password must be at least 6 characters</p>
+              }
+            </div>
+          }
         </div>
 
         <!-- Submit Button -->
@@ -66,12 +80,18 @@
           [disabled]="isLoading"
           class="btn-primary w-full flex items-center justify-center"
         >
-          <svg *ngIf="isLoading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <span *ngIf="!isLoading">Sign In</span>
-          <span *ngIf="isLoading">Signing in...</span>
+          @if (isLoading) {
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          }
+          @if (!isLoading) {
+            <span>Sign In</span>
+          }
+          @if (isLoading) {
+            <span>Signing in...</span>
+          }
         </button>
       </form>
 
