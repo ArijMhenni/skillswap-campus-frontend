@@ -1,9 +1,10 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RequestService } from '../../services/request.service';
 import { Request, RequestStatus } from '../../models/request.model';
 import { StatusColorPipe } from '../../pipes/status-color.pipe';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-request-detail',
@@ -16,11 +17,18 @@ export class RequestDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private requestService = inject(RequestService);
+  private authService = inject(AuthService);
 
   request = signal<Request | null>(null);
   isLoading = signal<boolean>(true);
-  
+
   RequestStatus = RequestStatus;
+
+  isProvider = computed(() => {
+    const req = this.request();
+    const user = this.authService.getCurrentUser();
+    return !!(req && user && req.provider?.id === user.id);
+  });
 
   ngOnInit(): void {
     const id = this.route.snapshot.params['id'];

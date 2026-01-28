@@ -24,12 +24,25 @@ export class RequestDashboardComponent implements OnInit {
 
   // Computed
   filteredRequests = computed(() => {
-    const allRequests = this.requests();
-    const status = this.selectedStatus();
-    
-    if (status === 'ALL') return allRequests;
-    return allRequests.filter(req => req.status === status);
-  });
+  const status = this.selectedStatus();
+  const tab = this.activeTab();
+
+  let baseList = this.requests();
+
+  // 🔐 Sécurité : filtrage par onglet
+  baseList = baseList.filter(req =>
+    tab === 'sent'
+      ? !!req.requester   // demandes envoyées
+      : !!req.provider    // demandes reçues
+  );
+
+  if (status === 'ALL') {
+    return baseList;
+  }
+
+  return baseList.filter(req => req.status === status);
+});
+
 
   RequestStatus = RequestStatus;
 
