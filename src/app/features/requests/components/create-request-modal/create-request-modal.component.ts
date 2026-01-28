@@ -21,30 +21,47 @@ export class CreateRequestModalComponent {
   message = signal<string>('');
   isSubmitting = signal<boolean>(false);
 
-  submitRequest(): void {
-    if (!this.message().trim()) {
-      alert('Veuillez entrer un message');
-      return;
-    }
+ submitRequest(): void {
+  if (!this.message().trim()) {
+    alert('Veuillez entrer un message');
+    return;
+  }
 
-    this.isSubmitting.set(true);
+  console.log('🚀 Envoi de la demande:', {
+    skillId: this.skillId,
+    message: this.message()
+  });
 
-    this.requestService.createRequest({
-      skillId: this.skillId,
-      message: this.message()
-    }).subscribe({
-      next: () => {
-        this.isSubmitting.set(false);
-        this.requestCreated.emit();
-        this.closeModal();
-      },
-      error: (err) => {
-        console.error('Erreur:', err);
-        this.isSubmitting.set(false);
+  this.isSubmitting.set(true);
+
+  this.requestService.createRequest({
+    skillId: this.skillId,
+    message: this.message()
+  }).subscribe({
+    next: (response) => {
+      console.log('✅ Succès:', response);
+      this.isSubmitting.set(false);
+      this.requestCreated.emit();
+      this.closeModal();
+    },
+    error: (err) => {
+      // 🔍 LOG DÉTAILLÉ DE L'ERREUR
+      console.error('❌ Erreur complète:', err);
+      console.error('Status:', err.status);
+      console.error('Message:', err.message);
+      console.error('Error body:', err.error);
+      
+      this.isSubmitting.set(false);
+      
+      // Afficher un message plus détaillé
+      if (err.error?.message) {
+        alert(`Erreur: ${err.error.message}`);
+      } else {
         alert('Erreur lors de l\'envoi de la demande');
       }
-    });
-  }
+    }
+  });
+}
 
   closeModal(): void {
     this.modalClosed.emit();

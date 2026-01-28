@@ -43,6 +43,7 @@ export class RequestDashboardComponent implements OnInit {
     
     this.requestService.getMyRequests({ role }).subscribe({
       next: (data) => {
+         console.log('DATA FROM API:', data);
         this.requests.set(data);
         this.isLoading.set(false);
       },

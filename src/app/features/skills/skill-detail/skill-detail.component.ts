@@ -200,4 +200,5 @@ export class SkillDetailComponent implements OnInit {
     alert('Demande envoyée avec succès!');
     this.showModal.set(false);
   }
+  
 }

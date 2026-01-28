@@ -12,6 +12,8 @@ export class RequestService {
   private apiUrl = `${environment.apiUrl}/requests`;
 
   createRequest(data: CreateRequestDto): Observable<Request> {
+    console.log('URL appelée:', this.apiUrl);
+    console.log('Données envoyées:', data);
     return this.http.post<Request>(this.apiUrl, data);
   }
 
