@@ -11,8 +11,8 @@
       </p>
     </div>
     
-    <span [class]="request.status | statusColor" class="px-3 py-1 rounded-full text-sm font-medium">
-      {{ request.status }}
+    <span [class]="getStatusClass()" class="px-3 py-1 rounded-full text-sm font-medium">
+      {{ getStatusLabel() }}
     </span>
   </div>
 
