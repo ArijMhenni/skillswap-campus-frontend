@@ -120,10 +120,17 @@ export class SkillDetailComponent implements OnInit {
 
   offerHelp(): void {
     const currentSkill = this.skill();
-    // TODO: Implémenter la logique d'offre d'aide
-    alert(
-      `Offre d'aide pour "${currentSkill?.title}" envoyée à ${currentSkill?.user?.firstName}`
-    );
+    if (!currentSkill) {
+    return;
+  }
+  const currentUser = this.authService.getCurrentUser();
+  if (currentSkill.user?.id === currentUser?.id) {
+    alert('Vous ne pouvez pas proposer votre aide sur votre propre demande');
+    return;
+  } 
+  
+  this.showModal.set(true);   
+    
   }
 
   goBack(): void {
