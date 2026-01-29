@@ -1,7 +1,6 @@
 <nav class="navbar">
   <div class="navbar-container">
     <div class="navbar-left">
-      <!-- Logo -->
       <a routerLink="/" class="brand">
         <div class="brand-logo">
           <svg class="logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -11,17 +10,15 @@
         <span class="brand-text">SkillSwap</span>
       </a>
 
-      <!-- Navigation Links - Always visible -->
       <div class="navbar-nav">
-        <a routerLink="/marketplace" routerLinkActive="active" class="nav-link">Marketplace</a>
-        <a routerLink="/requests" routerLinkActive="active" class="nav-link">Requests</a>
+        <a routerLink="/skills" routerLinkActive="active" class="nav-link">Marketplace</a>
+        <a routerLink="/requests" routerLinkActive="active" class="nav-link">Demandes</a>
         <a routerLink="/messages" routerLinkActive="active" class="nav-link">Messages</a>
       </div>
     </div>
 
     <div class="navbar-right">
       @if (isAuthenticated()) {
-        <!-- ✅ UTILISATEUR CONNECTÉ: Recherche + Notifications + Profile -->
         <button class="icon-btn" (click)="onSearchClick()" aria-label="Rechercher">
           <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"/>
@@ -39,7 +36,6 @@
           }
         </a>
 
-        <!-- Profile Avatar -->
         <button class="avatar-btn" (click)="onProfileClick()" aria-label="Profil" title="Mon Profil">
           <div class="avatar">
             @if (currentUser?.avatar) {
@@ -54,7 +50,6 @@
           </div>
         </button>
       } @else {
-        <!-- ✅ UTILISATEUR NON CONNECTÉ: Connexion + Commencer -->
         <a routerLink="/auth/login" class="btn-login">Connexion</a>
         <a routerLink="/auth/register" class="btn-get-started">Commencer</a>
       }

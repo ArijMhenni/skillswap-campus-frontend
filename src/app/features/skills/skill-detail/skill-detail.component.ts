@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SkillService } from '../services/skill.service';
@@ -22,22 +22,12 @@ export class SkillDetailComponent implements OnInit {
   skill = signal<Skill | null>(null);
   loading = signal(false);
   error = signal<string | null>(null);
+  
+  // Ownership status from route guard - set by the guard
+  isOwner = signal(false);
 
   // Expose SkillType enum to template
   SkillType = SkillType;
-
-  // Computed property pour vérifier si l'utilisateur est propriétaire
-  isOwner = computed(() => {
-    const currentSkill = this.skill();
-    const currentUser = this.authService.getCurrentUser();
-    
-    if (!currentSkill || !currentUser) {
-      return false;
-    }
-    
-    // Vérifier si l'utilisateur connecté est le propriétaire de la compétence
-    return currentSkill.user?.id === currentUser.id;
-  });
 
   constructor(
     private route: ActivatedRoute,
@@ -47,11 +37,24 @@ export class SkillDetailComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const skillId = this.route.snapshot.paramMap.get('id');
-    if (skillId) {
-      this.loadSkill(skillId);
+    // Get ownership status from route data (set by guard)
+    const isOwnerFromRoute = this.route.snapshot.data['isOwner'];
+    if (isOwnerFromRoute !== undefined) {
+      this.isOwner.set(isOwnerFromRoute);
+    }
+
+    // Check if skill was pre-loaded by guard
+    const preLoadedSkill = this.route.snapshot.data['skill'];
+    if (preLoadedSkill) {
+      this.skill.set(preLoadedSkill);
     } else {
-      this.error.set(ERROR_MESSAGES.SKILL.INVALID_ID);
+      // Fallback: load skill if not pre-loaded
+      const skillId = this.route.snapshot.paramMap.get('id');
+      if (skillId) {
+        this.loadSkill(skillId);
+      } else {
+        this.error.set(ERROR_MESSAGES.SKILL.INVALID_ID);
+      }
     }
   }
 
@@ -76,24 +79,13 @@ export class SkillDetailComponent implements OnInit {
     const currentSkill = this.skill();
     if (!currentSkill) return;
 
-    // Vérifier que l'utilisateur est bien le propriétaire
-    if (!this.isOwner()) {
-      alert('Vous n\'êtes pas autorisé à modifier cette compétence.');
-      return;
-    }
-
+    // Guard will handle authorization check
     this.router.navigate(['/skills', currentSkill.id, 'edit']);
   }
 
   deleteSkill(): void {
     const currentSkill = this.skill();
     if (!currentSkill) return;
-
-    // Vérifier que l'utilisateur est bien le propriétaire
-    if (!this.isOwner()) {
-      alert('Vous n\'êtes pas autorisé à supprimer cette compétence.');
-      return;
-    }
 
     const confirmed = confirm(CONFIRMATION_MESSAGES.SKILL.DELETE(currentSkill.title));
 
