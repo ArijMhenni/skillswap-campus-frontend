@@ -29,7 +29,6 @@ export class RequestDashboardComponent implements OnInit {
 
   let baseList = this.requests();
 
-  // 🔐 Sécurité : filtrage par onglet
   baseList = baseList.filter(req =>
     tab === 'sent'
       ? !!req.requester   // demandes envoyées

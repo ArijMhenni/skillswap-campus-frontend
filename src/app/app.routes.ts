@@ -29,6 +29,10 @@ export const routes: Routes = [
     loadChildren: () => import('./features/users/users.routes').then(m => m.USERS_ROUTES)
   },
   {
+    path: 'notifications',
+    loadChildren: () => import('./features/notifications/notifications.routes').then(m => m.notificationsRoutes)
+  },
+  {
     path: '**',
     redirectTo: '/'
   },

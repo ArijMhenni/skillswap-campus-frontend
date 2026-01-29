@@ -6,7 +6,7 @@
         {{ request.skill?.title }}
       </h3>
       <p class="text-sm text-gray-600 mt-1">
-        {{ viewAs === 'sent' ? 'À' : 'De' }}: 
+        {{ viewAs === 'sent' ? 'To' : 'From' }}:
         {{ otherUser?.firstName }} {{ otherUser?.lastName }}
       </p>
     </div>
@@ -31,47 +31,47 @@
 
   <!-- Date -->
   <p class="text-xs text-gray-500 mb-4">
-    Créée le {{ request.createdAt | date:'dd/MM/yyyy à HH:mm' }}
+    Created on {{ request.createdAt | date:'dd/MM/yyyy at HH:mm' }}
   </p>
 
   <!-- Actions -->
   <div class="flex gap-2 flex-wrap">
     @if (canAccept) {
-      <button 
+      <button
         (click)="acceptRequest()"
         class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-        Accepter
+        Accept
       </button>
     }
-    
+
     @if (canReject) {
-      <button 
+      <button
         (click)="rejectRequest()"
         class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-        Rejeter
+        Reject
       </button>
     }
-    
+
     @if (canComplete) {
-      <button 
+      <button
         (click)="completeRequest()"
         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-        Marquer comme complété
+        Mark as completed
       </button>
     }
-    
+
     @if (canCancel) {
-      <button 
+      <button
         (click)="cancelRequest()"
         class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
-        Annuler
+        Cancel
       </button>
     }
     
-    <a 
+    <a
       [routerLink]="['/requests', request.id]"
       class="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50">
-      Voir détails
+      View details
     </a>
   </div>
 </div>

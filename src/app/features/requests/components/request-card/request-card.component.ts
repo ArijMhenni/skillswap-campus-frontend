@@ -50,11 +50,11 @@ export class RequestCardComponent {
 
   getStatusLabel(): string {
     const labels: Record<RequestStatus, string> = {
-      [RequestStatus.PENDING]: 'En attente',
-      [RequestStatus.ACCEPTED]: 'Acceptée',
-      [RequestStatus.REJECTED]: 'Rejetée',
-      [RequestStatus.COMPLETED]: 'Complétée',
-      [RequestStatus.CANCELLED]: 'Annulée',
+      [RequestStatus.PENDING]: 'Pending',
+      [RequestStatus.ACCEPTED]: 'Accepted',
+      [RequestStatus.REJECTED]: 'Rejected',
+      [RequestStatus.COMPLETED]: 'Completed',
+      [RequestStatus.CANCELLED]: 'Cancelled',
     };
     return labels[this.request.status];
   }
@@ -82,25 +82,25 @@ export class RequestCardComponent {
   }
 
   acceptRequest(): void {
-    if (confirm('Accepter cette demande ?')) {
+    if (confirm('Accept this request?')) {
       this.updateStatus(RequestStatus.ACCEPTED);
     }
   }
 
   rejectRequest(): void {
-    if (confirm('Rejeter cette demande ?')) {
+    if (confirm('Reject this request?')) {
       this.updateStatus(RequestStatus.REJECTED);
     }
   }
 
   completeRequest(): void {
-    if (confirm('Marquer comme complété ?')) {
+    if (confirm('Mark as completed?')) {
       this.updateStatus(RequestStatus.COMPLETED);
     }
   }
 
   cancelRequest(): void {
-    if (confirm('Annuler cette demande ?')) {
+    if (confirm('Cancel this request?')) {
       this.updateStatus(RequestStatus.CANCELLED);
     }
   }
@@ -119,8 +119,8 @@ export class RequestCardComponent {
         this.requestUpdated.emit();
       },
       error: (err) => {
-        console.error(' Erreur mise à jour:', err);
-        const errorMsg = err.error?.message || 'Erreur lors de la mise à jour du statut';
+        console.error(' Update error:', err);
+        const errorMsg = err.error?.message || 'Error updating status';
         alert(errorMsg);
       }
     });

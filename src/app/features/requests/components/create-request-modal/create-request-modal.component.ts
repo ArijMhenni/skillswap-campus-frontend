@@ -45,8 +45,7 @@ export class CreateRequestModalComponent {
       this.closeModal();
     },
     error: (err) => {
-      // 🔍 LOG DÉTAILLÉ DE L'ERREUR
-      console.error('❌ Erreur complète:', err);
+      console.error('Erreur complète:', err);
       console.error('Status:', err.status);
       console.error('Message:', err.message);
       console.error('Error body:', err.error);
