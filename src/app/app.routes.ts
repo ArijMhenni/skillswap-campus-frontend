@@ -8,32 +8,44 @@ import { CreateRoomComponent } from './features/chat/components/create-room/crea
 
 export const routes: Routes = [
   {
+    path: 'admin',
+    loadChildren: () =>
+      import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
+  },
+  {
     path: '',
-    loadChildren: () => import('./features/home/home.routes').then(m => m.homeRoutes)
+    loadChildren: () =>
+      import('./features/home/home.routes').then((m) => m.homeRoutes),
   },
   {
     path: 'auth',
-    loadChildren: () => import('./features/auth/auth.routes').then(m => m.authRoutes)
+    loadChildren: () =>
+      import('./features/auth/auth.routes').then((m) => m.authRoutes),
   },
   {
     path: 'skills',
-    loadChildren: () => import('./features/skills/skills.routes').then(m => m.SKILLS_ROUTES),
-    canActivate: [authGuard] 
+    loadChildren: () =>
+      import('./features/skills/skills.routes').then((m) => m.SKILLS_ROUTES),
+    canActivate: [authGuard],
   },
   {
     path: 'requests',
     children: [
       { path: '', component: RequestDashboardComponent },
-      { path: ':id', component: RequestDetailComponent }
-    ]
+      { path: ':id', component: RequestDetailComponent },
+    ],
   },
   {
     path: 'users',
-    loadChildren: () => import('./features/users/users.routes').then(m => m.USERS_ROUTES)
+    loadChildren: () =>
+      import('./features/users/users.routes').then((m) => m.USERS_ROUTES),
   },
   {
     path: 'notifications',
-    loadChildren: () => import('./features/notifications/notifications.routes').then(m => m.notificationsRoutes)
+    loadChildren: () =>
+      import('./features/notifications/notifications.routes').then(
+        (m) => m.notificationsRoutes,
+      ),
   },
   {
      path: 'messages', component: DashboardComponent
@@ -43,8 +55,12 @@ export const routes: Routes = [
     },
   {
     path: '**',
-    redirectTo: '/'
+    redirectTo: '/',
   },
+<<<<<<< HEAD
   
   
 ];
+=======
+];
+>>>>>>> b5d98bf6a4076cf52833726827ccc45a39eead31

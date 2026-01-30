@@ -1,0 +1,205 @@
+<div class="min-h-screen bg-gray-50 admin-page-container">
+  <div class="bg-white border-b border-gray-200">
+    <div class="container mx-auto px-4 py-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">
+            Tableau de Bord Admin
+          </h1>
+          <p class="mt-1 text-sm text-gray-600">
+            Vue d'ensemble de la plateforme SkillSwap Campus
+          </p>
+        </div>
+        <button
+          (click)="loadStatistics()"
+          class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+        >
+          <svg
+            class="h-4 w-4"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"
+            />
+          </svg>
+          Actualiser
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container mx-auto py-8">
+    @if (loading) {
+      <div class="flex items-center justify-center py-12">
+        <div class="text-center">
+          <div
+            class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"
+          ></div>
+          <p class="mt-2 text-sm text-gray-600">
+            Chargement des statistiques...
+          </p>
+        </div>
+      </div>
+    }
+
+    @if (error && !loading) {
+      <div class="rounded-lg border border-red-200 bg-red-50 p-4">
+        <div class="flex items-start gap-3">
+          <svg
+            class="h-5 w-5 text-red-600 mt-0.5"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"
+            />
+          </svg>
+          <div>
+            <h3 class="font-medium text-red-800">Erreur</h3>
+            <p class="text-sm text-red-700">{{ error }}</p>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (stats && !loading) {
+      <div>
+        <div
+          class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 mb-8"
+        >
+          @for (card of statCards; track card.label) {
+            <div
+              class="group relative overflow-hidden rounded-lg border border-gray-200 bg-white p-6 transition-all hover:border-blue-300 hover:shadow-lg"
+            >
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-600">
+                    {{ card.label }}
+                  </p>
+                  <p class="mt-2 text-3xl font-bold" [ngClass]="card.color">
+                    {{ card.value }}
+                  </p>
+                </div>
+                <div
+                  class="flex h-12 w-12 items-center justify-center rounded-xl transition-colors"
+                  [ngClass]="[card.bgColor, card.color]"
+                >
+                  <svg
+                    class="h-6 w-6"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    viewBox="0 0 24 24"
+                  >
+                    <path [attr.d]="card.iconPath" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="rounded-lg border border-gray-200 bg-white p-6">
+          <h2 class="mb-4 text-lg font-semibold text-gray-900">
+            Actions Rapides
+          </h2>
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <a
+              routerLink="/admin/users"
+              class="group flex items-center gap-4 rounded-lg border border-gray-200 p-4 transition-all hover:border-blue-300 hover:bg-blue-50"
+            >
+              <div
+                class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white"
+              >
+                <svg
+                  class="h-5 w-5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <p class="font-medium text-gray-900">Gérer les Utilisateurs</p>
+                <p class="text-xs text-gray-600">Ban, unban, voir profils</p>
+              </div>
+            </a>
+
+            <a
+              routerLink="/admin/skills"
+              class="group flex items-center gap-4 rounded-lg border border-gray-200 p-4 transition-all hover:border-blue-300 hover:bg-blue-50"
+            >
+              <div
+                class="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 text-purple-600 transition-colors group-hover:bg-purple-600 group-hover:text-white"
+              >
+                <svg
+                  class="h-5 w-5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                  />
+                </svg>
+              </div>
+              <div>
+                <p class="font-medium text-gray-900">Modérer les Skills</p>
+                <p class="text-xs text-gray-600">
+                  Supprimer le contenu inapproprié
+                </p>
+              </div>
+            </a>
+
+            <a
+              routerLink="/admin/reports"
+              class="group flex items-center gap-4 rounded-lg border border-gray-200 p-4 transition-all hover:border-blue-300 hover:bg-blue-50"
+            >
+              <div
+                class="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 text-amber-600 transition-colors group-hover:bg-amber-600 group-hover:text-white"
+              >
+                <svg
+                  class="h-5 w-5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"
+                  />
+                </svg>
+              </div>
+              <div>
+                <p class="font-medium text-gray-900">Gérer les Signalements</p>
+                <p class="text-xs text-gray-600">
+                  {{ stats.pendingReports }} en attente
+                </p>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,19 @@
+:host {
+  display: block;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}
+
+.group:hover {
+  transform: translateY(-2px);
+}
+
+.admin-page-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}

@@ -7,9 +7,10 @@ export interface User {
   offeredSkills: string[] | null;
   wantedSkills: string[] | null;
   availability: string | null;
-  avatar?: string | null ; 
-  rating?: number; 
-  reviewCount?: number; 
+  avatar?: string | null;
+  isBanned?: boolean;
+  rating?: number;
+  reviewCount?: number;
   createdAt?: string;
   updatedAt?: string;
 }
