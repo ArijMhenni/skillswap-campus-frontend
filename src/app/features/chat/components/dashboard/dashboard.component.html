@@ -1,0 +1,53 @@
+<div class="dashboard-container">
+  <!-- Rooms Section -->
+  <div class="rooms-section">
+    <div class="rooms-header">
+      <h2>My Chats</h2>
+      <button mat-raised-button color="primary" (click)="onCreateRoom()">
+        <mat-icon>add</mat-icon>
+        New Chat
+      </button>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <mat-selection-list
+      (selectionChange)="onSelectRoom($event)"
+      class="rooms-list"
+    >
+      <mat-list-option
+        *ngFor="let room of (rooms$ | async)?.items"
+        [value]="room"
+      >
+        <div class="room-item">
+          <div class="room-header">
+            <div class="room-name">{{ room.participants[0].firstName }}  {{ room.participants[0].lastName }}</div>
+            <div class="participant-count">
+              {{ room.participants.length || 0 }} members
+            </div>
+          </div>
+        </div>
+      </mat-list-option>
+    </mat-selection-list>
+
+    <mat-paginator
+      [length]="(rooms$ | async)?.meta?.totalItems || 0"
+      [pageSize]="(rooms$ | async)?.meta?.itemsPerPage || 10"
+      [pageSizeOptions]="[5, 10, 25, 50]"
+      [pageIndex]="(rooms$ | async)?.meta?.currentPage || 0"
+      (page)="onPaginateRooms($event)"
+    >
+    </mat-paginator>
+  </div>
+
+  <!-- Chat Section -->
+  <div class="chat-section">
+    <app-chat-room
+      *ngIf="selectedRoom"
+      [chatRoom]="selectedRoom"
+    ></app-chat-room>
+    <div *ngIf="!selectedRoom" class="no-room-selected">
+      <p>Select a room to start chatting</p>
+    </div>
+  </div>
+</div>

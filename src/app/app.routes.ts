@@ -2,6 +2,9 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { RequestDashboardComponent } from './features/requests/components/request-dashboard/request-dashboard.component';
 import { RequestDetailComponent } from './features/requests/components/request-detail/request-detail.component';
+import { ChatRoomComponent } from './features/chat/components/chat-room/chat-room.component';
+import { DashboardComponent } from './features/chat/components/dashboard/dashboard.component';
+import { CreateRoomComponent } from './features/chat/components/create-room/create-room/create-room.component';
 
 export const routes: Routes = [
   {
@@ -33,8 +36,15 @@ export const routes: Routes = [
     loadChildren: () => import('./features/notifications/notifications.routes').then(m => m.notificationsRoutes)
   },
   {
+     path: 'messages', component: DashboardComponent
+    },
+     {
+     path: 'create-room', component: CreateRoomComponent
+    },
+  {
     path: '**',
     redirectTo: '/'
   },
+  
   
 ];

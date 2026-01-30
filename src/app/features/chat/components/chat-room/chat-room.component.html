@@ -1,0 +1,52 @@
+<div *ngIf="chatRoom" class="chat-room-container">
+  <!-- Header -->
+  <div class="chat-header">
+    <h3>{{ chatRoom.participants[0].firstName }} {{ chatRoom.participants[0].lastName }}</h3>
+    <div class="room-info">
+      {{ chatRoom.participants.length || 0 }} participants
+    </div>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Messages Container -->
+  <div class="messages-container" #messagesContainer>
+    <div *ngIf="!(messagesPaginate$ | async)?.items?.length" class="no-messages">
+      <p>No messages yet. Start the conversation!</p>
+    </div>
+
+    <div
+      *ngFor="let message of (messagesPaginate$ | async)?.items"
+      class="message-item"
+      [class.own-message]="message.sender.id === ''"
+    >
+      <app-chat-message [message]="message"></app-chat-message>
+    </div>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Message Input -->
+  <div class="message-input-section">
+    <input
+      type="text"
+      [formControl]="chatMessage"
+      placeholder="Type a message..."
+      class="message-input"
+      (keyup.enter)="sendMessage()"
+    />
+    <button
+      mat-raised-button
+      color="primary"
+      [disabled]="!chatMessage.valid"
+      (click)="sendMessage()"
+      class="send-button"
+    >
+      Send
+    </button>
+  </div>
+</div>
+
+<div *ngIf="!chatRoom" class="no-room-selected">
+  <p>Select a chat to start chatting</p>
+</div>
