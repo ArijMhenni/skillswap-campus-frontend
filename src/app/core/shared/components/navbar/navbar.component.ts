@@ -10,33 +10,36 @@ import { filter } from 'rxjs/operators';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.css']
+  styleUrls: ['./navbar.component.css'],
 })
 export class NavbarComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
-  
+
   notificationCount = 0;
   currentUser: User | null = null;
   currentUrl = '';
 
   ngOnInit(): void {
     // Subscribe to current user
-    this.authService.currentUser$.subscribe(user => {
+    this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
     });
 
     // Listen to route changes
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe((event: any) => {
-      this.currentUrl = event.url;
-    });
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        this.currentUrl = event.url;
+      });
   }
-
 
   isAuthenticated(): boolean {
     return this.authService.isAuthenticated();
+  }
+
+  isAdmin(): boolean {
+    return this.authService.isAdmin();
   }
 
   getUserInitials(): string {
