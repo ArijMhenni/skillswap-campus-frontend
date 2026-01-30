@@ -1,0 +1,258 @@
+<div class="min-h-screen bg-gray-50 admin-page-container">
+  <div class="bg-white border-b border-gray-200">
+    <div class="container mx-auto px-4 py-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">
+            Modération des Skills
+          </h1>
+          <p class="mt-1 text-sm text-gray-600">
+            {{ totalItems }} skills au total
+          </p>
+        </div>
+        <a
+          routerLink="/admin"
+          class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
+        >
+          <svg
+            class="h-4 w-4"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+          Retour au dashboard
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container mx-auto py-8">
+    <div class="mb-6 rounded-lg border border-gray-200 bg-white p-4">
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label class="mb-2 block text-sm font-medium text-gray-700"
+            >Rechercher</label
+          >
+          <input
+            type="text"
+            [(ngModel)]="searchQuery"
+            (keyup.enter)="onFilterChange()"
+            placeholder="Titre ou description..."
+            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+          />
+        </div>
+        <div>
+          <label class="mb-2 block text-sm font-medium text-gray-700"
+            >Catégorie</label
+          >
+          <select
+            [(ngModel)]="categoryFilter"
+            (change)="onFilterChange()"
+            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+          >
+            <option value="">Toutes les catégories</option>
+            <option value="TECH">Tech</option>
+            <option value="LANGUAGES">Langues</option>
+            <option value="ART">Art</option>
+            <option value="MUSIC">Musique</option>
+            <option value="COOKING">Cuisine</option>
+            <option value="ACADEMICS">Académique</option>
+            <option value="SPORTS">Sports</option>
+            <option value="OTHER">Autre</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    @if (loading) {
+      <div class="flex items-center justify-center py-12">
+        <div class="text-center">
+          <div
+            class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"
+          ></div>
+          <p class="mt-2 text-sm text-gray-600">Chargement des skills...</p>
+        </div>
+      </div>
+    }
+
+    @if (error && !loading) {
+      <div class="rounded-lg border border-red-200 bg-red-50 p-4">
+        <p class="text-sm text-red-700">{{ error }}</p>
+      </div>
+    }
+
+    @if (!loading && !error) {
+      @if (skills.length === 0) {
+        <div
+          class="rounded-lg border border-gray-200 bg-white p-12 text-center"
+        >
+          <svg
+            class="mx-auto h-12 w-12 text-gray-400"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+            />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">
+            Aucune skill trouvée
+          </h3>
+          <p class="mt-1 text-sm text-gray-500">
+            Essayez de modifier vos filtres
+          </p>
+        </div>
+      } @else {
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          @for (skill of skills; track skill.id) {
+            <div
+              class="group relative overflow-hidden rounded-lg border border-gray-200 bg-white p-6 transition-all hover:border-blue-300 hover:shadow-lg"
+            >
+              <div class="mb-4 flex items-start justify-between">
+                <div class="flex-1">
+                  <span
+                    class="inline-flex rounded-full px-2 py-1 text-xs font-semibold"
+                    [ngClass]="{
+                      'bg-blue-100 text-blue-800': skill.type === 'OFFER',
+                      'bg-purple-100 text-purple-800': skill.type === 'REQUEST',
+                    }"
+                  >
+                    {{ getTypeLabel(skill.type) }}
+                  </span>
+                  <span class="ml-2 text-xs text-gray-500">
+                    {{ getCategoryLabel(skill.category) }}
+                  </span>
+                </div>
+                <button
+                  (click)="openDeleteModal(skill)"
+                  class="text-red-600 hover:text-red-800 transition-colors"
+                  title="Supprimer cette skill"
+                >
+                  <svg
+                    class="h-5 w-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              <h3 class="mb-2 font-semibold text-gray-900">
+                {{ skill.title }}
+              </h3>
+              <p class="mb-4 line-clamp-2 text-sm text-gray-600">
+                {{ skill.description }}
+              </p>
+
+              <div
+                class="flex items-center justify-between border-t border-gray-100 pt-4"
+              >
+                <div class="flex items-center gap-2">
+                  <div
+                    class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-semibold text-blue-600"
+                  >
+                    {{ getUserInitials(skill.user) }}
+                  </div>
+                  <div>
+                    <p class="text-xs font-medium text-gray-900">
+                      {{ skill.user?.firstName }} {{ skill.user?.lastName }}
+                    </p>
+                    <p class="text-xs text-gray-500">
+                      {{ skill.estimatedTime }}h estimées
+                    </p>
+                  </div>
+                </div>
+                <a
+                  [routerLink]="['/skills', skill.id]"
+                  class="text-sm text-blue-600 hover:text-blue-800"
+                >
+                  Voir →
+                </a>
+              </div>
+            </div>
+          }
+        </div>
+
+        @if (totalPages > 1) {
+          <div
+            class="mt-6 flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3"
+          >
+            <div class="text-sm text-gray-700">
+              Page {{ currentPage }} sur {{ totalPages }}
+            </div>
+            <div class="flex items-center gap-2">
+              <button
+                (click)="onPageChange(currentPage - 1)"
+                [disabled]="currentPage === 1"
+                class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Précédent
+              </button>
+              <button
+                (click)="onPageChange(currentPage + 1)"
+                [disabled]="currentPage === totalPages"
+                class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Suivant
+              </button>
+            </div>
+          </div>
+        }
+      }
+    }
+  </div>
+</div>
+
+@if (showDeleteModal && selectedSkill) {
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+  >
+    <div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+      <h3 class="mb-4 text-lg font-semibold text-gray-900">
+        Supprimer cette skill ?
+      </h3>
+      <p class="mb-2 text-sm text-gray-600">
+        <strong>{{ selectedSkill.title }}</strong>
+      </p>
+      <p class="mb-4 text-sm text-gray-600">
+        Cette action ne peut pas être annulée. La skill sera marquée comme
+        supprimée.
+      </p>
+      <div class="flex items-center justify-end gap-3">
+        <button
+          (click)="closeDeleteModal()"
+          [disabled]="deleteLoading"
+          class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+        >
+          Annuler
+        </button>
+        <button
+          (click)="confirmDelete()"
+          [disabled]="deleteLoading"
+          class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          @if (deleteLoading) {
+            <span
+              class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-r-transparent"
+            ></span>
+          } @else {
+            Supprimer
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

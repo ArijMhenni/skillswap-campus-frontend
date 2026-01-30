@@ -1,0 +1,331 @@
+<div class="min-h-screen bg-gray-50 admin-page-container">
+  <div class="bg-white border-b border-gray-200">
+    <div class="container mx-auto px-4 py-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">
+            Gestion des Utilisateurs
+          </h1>
+          <p class="mt-1 text-sm text-gray-600">
+            {{ totalItems }} utilisateurs au total
+          </p>
+        </div>
+        <a
+          routerLink="/admin"
+          class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
+        >
+          <svg
+            class="h-4 w-4"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+          Retour au dashboard
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container mx-auto py-8">
+    <div class="mb-6 rounded-lg border border-gray-200 bg-white p-4">
+      <div class="flex items-center gap-4">
+        <div class="relative flex-1">
+          <input
+            type="text"
+            [(ngModel)]="searchQuery"
+            (keyup.enter)="onSearch()"
+            placeholder="Rechercher par nom ou email..."
+            class="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+          />
+          <svg
+            class="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
+          </svg>
+        </div>
+        <button
+          (click)="onSearch()"
+          class="rounded-lg bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+        >
+          Rechercher
+        </button>
+      </div>
+    </div>
+
+    @if (loading) {
+      <div class="flex items-center justify-center py-12">
+        <div class="text-center">
+          <div
+            class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"
+          ></div>
+          <p class="mt-2 text-sm text-gray-600">
+            Chargement des utilisateurs...
+          </p>
+        </div>
+      </div>
+    }
+
+    @if (error && !loading) {
+      <div class="rounded-lg border border-red-200 bg-red-50 p-4">
+        <p class="text-sm text-red-700">{{ error }}</p>
+      </div>
+    }
+
+    @if (!loading && !error) {
+      <div class="overflow-hidden rounded-lg border border-gray-200 bg-white">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                >
+                  Utilisateur
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                >
+                  Email
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                >
+                  Rôle
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                >
+                  Statut
+                </th>
+                <th
+                  class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500"
+                >
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 bg-white">
+              @for (user of users; track user.id) {
+                <tr class="hover:bg-gray-50">
+                  <td class="whitespace-nowrap px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <div
+                        class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-600"
+                      >
+                        {{ getUserInitials(user) }}
+                      </div>
+                      <div>
+                        <p class="font-medium text-gray-900">
+                          {{ user.firstName }} {{ user.lastName }}
+                        </p>
+                        <p class="text-xs text-gray-500">
+                          ID: {{ user.id.substring(0, 8) }}...
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
+                    {{ user.email }}
+                  </td>
+                  <td class="whitespace-nowrap px-6 py-4">
+                    <span
+                      class="inline-flex rounded-full px-2 py-1 text-xs font-semibold"
+                      [ngClass]="{
+                        'bg-purple-100 text-purple-800': user.role === 'ADMIN',
+                        'bg-gray-100 text-gray-800': user.role === 'USER',
+                      }"
+                    >
+                      {{ user.role }}
+                    </span>
+                  </td>
+                  <td class="whitespace-nowrap px-6 py-4">
+                    <span
+                      class="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold"
+                      [ngClass]="{
+                        'bg-red-100 text-red-800': user.isBanned,
+                        'bg-green-100 text-green-800': !user.isBanned,
+                      }"
+                    >
+                      <span
+                        class="h-1.5 w-1.5 rounded-full"
+                        [ngClass]="{
+                          'bg-red-600': user.isBanned,
+                          'bg-green-600': !user.isBanned,
+                        }"
+                      ></span>
+                      {{ user.isBanned ? "Banni" : "Actif" }}
+                    </span>
+                  </td>
+                  <td class="whitespace-nowrap px-6 py-4 text-right text-sm">
+                    <div class="flex items-center justify-end gap-2">
+                      <a
+                        [routerLink]="['/users', user.id]"
+                        class="text-blue-600 hover:text-blue-800"
+                        title="Voir le profil"
+                      >
+                        <svg
+                          class="h-5 w-5"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                          />
+                          <circle cx="12" cy="12" r="3" />
+                        </svg>
+                      </a>
+                      @if (!user.isBanned) {
+                        <button
+                          (click)="openBanModal(user)"
+                          class="text-red-600 hover:text-red-800"
+                          title="Bannir l'utilisateur"
+                        >
+                          <svg
+                            class="h-5 w-5"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="m4.93 4.93 14.14 14.14" />
+                          </svg>
+                        </button>
+                      } @else {
+                        <button
+                          (click)="unbanUser(user)"
+                          class="text-green-600 hover:text-green-800"
+                          title="Débannir l'utilisateur"
+                        >
+                          <svg
+                            class="h-5 w-5"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                            <path d="M22 4 12 14.01l-3-3" />
+                          </svg>
+                        </button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (totalPages > 1) {
+          <div class="border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+            <div class="flex items-center justify-between">
+              <div class="text-sm text-gray-700">
+                Affichage de
+                <span class="font-medium">{{
+                  (currentPage - 1) * itemsPerPage + 1
+                }}</span>
+                à
+                <span class="font-medium">{{
+                  Math.min(currentPage * itemsPerPage, totalItems)
+                }}</span>
+                sur
+                <span class="font-medium">{{ totalItems }}</span>
+                résultats
+              </div>
+              <div class="flex items-center gap-2">
+                <button
+                  (click)="onPageChange(currentPage - 1)"
+                  [disabled]="currentPage === 1"
+                  class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Précédent
+                </button>
+                @for (page of pages; track page) {
+                  <button
+                    (click)="onPageChange(page)"
+                    [ngClass]="{
+                      'bg-blue-600 text-white': page === currentPage,
+                      'bg-white text-gray-700 hover:bg-gray-50':
+                        page !== currentPage,
+                    }"
+                    class="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium"
+                  >
+                    {{ page }}
+                  </button>
+                }
+                <button
+                  (click)="onPageChange(currentPage + 1)"
+                  [disabled]="currentPage === totalPages"
+                  class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Suivant
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
+
+@if (showBanModal && selectedUser) {
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+  >
+    <div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+      <h3 class="mb-4 text-lg font-semibold text-gray-900">
+        Bannir {{ selectedUser.firstName }} {{ selectedUser.lastName }}
+      </h3>
+      <div class="mb-4">
+        <label class="mb-2 block text-sm font-medium text-gray-700">
+          Raison du bannissement
+        </label>
+        <textarea
+          [(ngModel)]="banReason"
+          rows="4"
+          placeholder="Expliquez la raison du bannissement..."
+          class="w-full rounded-lg border border-gray-300 p-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+        ></textarea>
+      </div>
+      <div class="flex items-center justify-end gap-3">
+        <button
+          (click)="closeBanModal()"
+          [disabled]="banLoading"
+          class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+        >
+          Annuler
+        </button>
+        <button
+          (click)="confirmBan()"
+          [disabled]="!banReason.trim() || banLoading"
+          class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          @if (banLoading) {
+            <span
+              class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-r-transparent"
+            ></span>
+          } @else {
+            Confirmer le ban
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

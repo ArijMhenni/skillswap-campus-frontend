@@ -1,0 +1,13 @@
+:host {
+  display: block;
+}
+
+table tr {
+  transition: background-color 150ms ease-in-out;
+}
+
+.admin-page-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
