@@ -3,46 +3,46 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment.development';
-import { 
-  User, 
-  AuthResponse, 
-  LoginDto, 
-  RegisterDto, 
-  UpdateProfileDto 
+import {
+  User,
+  AuthResponse,
+  LoginDto,
+  RegisterDto,
+  UpdateProfileDto,
 } from '../models/user.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
-  
+
   private apiUrl = environment.apiUrl;
   private readonly TOKEN_KEY = 'access_token';
   private readonly USER_KEY = 'current_user';
 
-  private currentUserSubject = new BehaviorSubject<User | null>(this.getUserFromStorage());
+  private currentUserSubject = new BehaviorSubject<User | null>(
+    this.getUserFromStorage(),
+  );
   public currentUser$ = this.currentUserSubject.asObservable();
 
   /**
    * Register a new user
    */
   register(registerDto: RegisterDto): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register`, registerDto)
-      .pipe(
-        tap(response => this.handleAuthResponse(response))
-      );
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/auth/register`, registerDto)
+      .pipe(tap((response) => this.handleAuthResponse(response)));
   }
 
   /**
    * Login user
    */
   login(loginDto: LoginDto): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, loginDto)
-      .pipe(
-        tap(response => this.handleAuthResponse(response))
-      );
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/auth/login`, loginDto)
+      .pipe(tap((response) => this.handleAuthResponse(response)));
   }
 
   /**
@@ -59,26 +59,24 @@ export class AuthService {
    * Get current user profile from backend
    */
   getProfile(): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/users/me`)
-      .pipe(
-        tap(user => {
-          this.saveUserToStorage(user);
-          this.currentUserSubject.next(user);
-        })
-      );
+    return this.http.get<User>(`${this.apiUrl}/users/me`).pipe(
+      tap((user) => {
+        this.saveUserToStorage(user);
+        this.currentUserSubject.next(user);
+      }),
+    );
   }
 
   /**
    * Update current user profile
    */
   updateProfile(updateDto: UpdateProfileDto): Observable<User> {
-    return this.http.patch<User>(`${this.apiUrl}/users/me`, updateDto)
-      .pipe(
-        tap(user => {
-          this.saveUserToStorage(user);
-          this.currentUserSubject.next(user);
-        })
-      );
+    return this.http.patch<User>(`${this.apiUrl}/users/me`, updateDto).pipe(
+      tap((user) => {
+        this.saveUserToStorage(user);
+        this.currentUserSubject.next(user);
+      }),
+    );
   }
 
   /**
@@ -141,16 +139,14 @@ export class AuthService {
 
   // Forgot Password - Demander un email de réinitialisation
   forgotPassword(email: string): Observable<any> {
-   return this.http.post(`${this.apiUrl}/auth/forgot-password`, { email });
-}
+    return this.http.post(`${this.apiUrl}/auth/forgot-password`, { email });
+  }
 
-// Reset Password - Réinitialiser avec token
+  // Reset Password - Réinitialiser avec token
   resetPassword(token: string, newPassword: string): Observable<any> {
-   return this.http.post(`${this.apiUrl}/auth/reset-password`, { 
-    token, 
-    newPassword 
-  });
-}
-
-
+    return this.http.post(`${this.apiUrl}/auth/reset-password`, {
+      token,
+      newPassword,
+    });
+  }
 }
