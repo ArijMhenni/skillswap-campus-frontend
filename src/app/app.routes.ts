@@ -57,10 +57,7 @@ export const routes: Routes = [
     path: '**',
     redirectTo: '/',
   },
-<<<<<<< HEAD
   
   
 ];
-=======
-];
->>>>>>> b5d98bf6a4076cf52833726827ccc45a39eead31
+
