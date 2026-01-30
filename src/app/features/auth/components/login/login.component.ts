@@ -1,6 +1,11 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 
@@ -9,7 +14,7 @@ import { AuthService } from '../../../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.css'],
 })
 export class LoginComponent implements OnInit {
   private fb = inject(FormBuilder);
@@ -29,7 +34,7 @@ export class LoginComponent implements OnInit {
 
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required, Validators.minLength(6)]],
     });
   }
 
@@ -54,8 +59,14 @@ export class LoginComponent implements OnInit {
     this.errorMessage = '';
 
     this.authService.login(this.loginForm.value).subscribe({
-      next: () => {
-        this.router.navigate(['/skills']);
+      next: (res) => {
+        this.isLoading = false;
+
+        if (res.user.role === 'ADMIN') {
+          this.router.navigate(['/admin']);
+        } else {
+          this.router.navigate(['/skills']);
+        }
       },
       error: (error) => {
         this.isLoading = false;
@@ -64,7 +75,7 @@ export class LoginComponent implements OnInit {
         } else {
           this.errorMessage = 'An error occurred. Please try again.';
         }
-      }
+      },
     });
   }
 }
