@@ -82,50 +82,62 @@ export class ProfileComponent implements OnInit {
     this.newAvatar = base64;
   }
 
-  onSubmit(): void {
-    if (this.profileForm.invalid) {
-      this.profileForm.markAllAsTouched();
-      return;
-    }
-
-    this.isLoading = true;
-    this.successMessage = '';
-    this.errorMessage = '';
-
-    const updateData: any = {
-      firstName: this.profileForm.value.firstName,
-      lastName: this.profileForm.value.lastName,
-      offeredSkills: this.offeredSkills.length > 0 ? this.offeredSkills : undefined,
-      wantedSkills: this.wantedSkills.length > 0 ? this.wantedSkills : undefined,
-      availability: this.profileForm.value.availability || undefined,
-    };
-
-    
-    if (this.newAvatar !== undefined) {
-      updateData.avatar = this.newAvatar === '' ? null : this.newAvatar;
-      console.log('Adding avatar to payload:', updateData.avatar);
-    } else {
-      console.log('newAvatar is undefined, NOT adding to payload');
-    }
-
-    
-
-    this.authService.updateProfile(updateData).subscribe({
-      next: (user) => {
-        
-        this.currentUser = user;
-        this.isLoading = false;
-        this.isEditing = false;
-        this.successMessage = 'Profile updated successfully!';
-        setTimeout(() => this.successMessage = '', 3000);
-      },
-      error: (error) => {
-        console.error('Error:', error);
-        this.isLoading = false;
-        this.errorMessage = error.error?.message || 'Failed to update profile. Please try again.';
-      }
-    });
+onSubmit(): void {
+  if (this.profileForm.invalid) {
+    this.profileForm.markAllAsTouched();
+    return;
   }
+
+  this.isLoading = true;
+  this.successMessage = '';
+  this.errorMessage = '';
+
+  const updateData: any = {
+    firstName: this.profileForm.value.firstName,
+    lastName: this.profileForm.value.lastName,
+  };
+
+  // Only add optional fields if they have values
+  if (this.offeredSkills.length > 0) {
+    updateData.offeredSkills = this.offeredSkills;
+  }
+  
+  if (this.wantedSkills.length > 0) {
+    updateData.wantedSkills = this.wantedSkills;
+  }
+  
+  if (this.profileForm.value.availability) {
+    updateData.availability = this.profileForm.value.availability;
+  }
+
+  // CRITICAL: Only add avatar if it was explicitly changed
+  if (this.newAvatar !== undefined) {
+    updateData.avatar = this.newAvatar === '' ? null : this.newAvatar;
+    console.log('✅ Avatar field included in payload');
+  } else {
+    console.log('✅ Avatar field NOT included - keeping existing avatar');
+  }
+
+  console.log('📤 Sending update data:', {
+    ...updateData,
+    avatar: updateData.avatar ? 'HAS_VALUE' : 'NOT_SET'
+  });
+
+  this.authService.updateProfile(updateData).subscribe({
+    next: (user) => {
+      this.currentUser = user;
+      this.isLoading = false;
+      this.isEditing = false;
+      this.successMessage = 'Profile updated successfully!';
+      setTimeout(() => this.successMessage = '', 3000);
+    },
+    error: (error) => {
+      console.error('Error:', error);
+      this.isLoading = false;
+      this.errorMessage = error.error?.message || 'Failed to update profile. Please try again.';
+    }
+  });
+}
 
   onLogout(): void {
     this.authService.logout();

@@ -48,10 +48,13 @@ export const routes: Routes = [
       ),
   },
   {
-     path: 'messages', component: DashboardComponent
+     path: 'messages', component: DashboardComponent,
+     canActivate: [authGuard]
+     
     },
      {
-     path: 'create-room', component: CreateRoomComponent
+     path: 'create-room', component: CreateRoomComponent,
+     canActivate: [authGuard]
     },
   {
     path: '**',
