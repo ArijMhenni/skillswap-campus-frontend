@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, inject, signal } from '@angular/core';
+import { Component, Input, inject, signal, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RequestService } from '../../services/request.service';
@@ -13,8 +13,8 @@ import { RequestService } from '../../services/request.service';
 export class CreateRequestModalComponent {
   @Input({ required: true }) skillId!: string;
   @Input({ required: true }) skillTitle!: string;
-  @Output() requestCreated = new EventEmitter<void>();
-  @Output() modalClosed = new EventEmitter<void>();
+  requestCreated = output<void>();
+  modalClosed = output<void>();
 
   private requestService = inject(RequestService);
 
@@ -27,7 +27,7 @@ export class CreateRequestModalComponent {
     return;
   }
 
-  console.log('🚀 Envoi de la demande:', {
+  console.log(' Envoi de la demande:', {
     skillId: this.skillId,
     message: this.message()
   });
@@ -39,7 +39,7 @@ export class CreateRequestModalComponent {
     message: this.message()
   }).subscribe({
     next: (response) => {
-      console.log('✅ Succès:', response);
+      console.log(' Succès:', response);
       this.isSubmitting.set(false);
       this.requestCreated.emit();
       this.closeModal();
