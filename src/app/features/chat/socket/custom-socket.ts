@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class CustomSocket {
@@ -8,7 +9,7 @@ export class CustomSocket {
 
   constructor() {
     const token = localStorage.getItem('access_token');
-    this.socket = io('http://localhost:3000', {
+    this.socket = io(environment.apiUrl, {
       transports: ['websocket'],
       auth: {
         token: token,
