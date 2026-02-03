@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, effect } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -13,29 +13,25 @@ import { AvatarUploadComponent } from '../avatar-upload/avatar-upload.component'
   styleUrl: './profile.component.css'
 })
 export class ProfileComponent {
-
+  // Injection moderne
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
 
-
+  // Signals (au lieu de propriétés normales)
   currentUser = signal<User | null>(null);
-  
- 
   isEditing = signal(false);
   isLoading = signal(false);
   successMessage = signal('');
   errorMessage = signal('');
   
-
   offeredSkills = signal<string[]>([]);
   wantedSkills = signal<string[]>([]);
   newOfferedSkill = signal('');
   newWantedSkill = signal('');
   
-  
   newAvatar = signal<string | undefined>(undefined);
 
- 
+  // Computed (valeurs dérivées)
   userInitials = computed(() => {
     const user = this.currentUser();
     if (!user) return '?';
@@ -44,57 +40,27 @@ export class ProfileComponent {
     return (first + last).toUpperCase();
   });
 
-  
-  hasChanges = computed(() => {
-    const user = this.currentUser();
-    if (!user) return false;
-    
-    return (
-      this.profileForm.value.firstName !== user.firstName ||
-      this.profileForm.value.lastName !== user.lastName ||
-      this.profileForm.value.availability !== (user.availability || '') ||
-      JSON.stringify(this.offeredSkills()) !== JSON.stringify(user.offeredSkills || []) ||
-      JSON.stringify(this.wantedSkills()) !== JSON.stringify(user.wantedSkills || []) ||
-      this.newAvatar() !== undefined
-    );
-  });
-
-
+  // Formulaire (reste classique)
   profileForm: FormGroup = this.fb.group({
     firstName: ['', [Validators.required, Validators.maxLength(50)]],
     lastName: ['', [Validators.required, Validators.maxLength(50)]],
     availability: ['', [Validators.maxLength(500)]]
   });
 
-  
+  // Constructor: charger immédiatement
   constructor() {
-    // Charger le profil dès la création du component
     this.loadProfile();
-
-    
-    effect(() => {
-      const user = this.currentUser();
-      if (user) {
-        console.log('👤 User loaded:', user.email);
-      }
-    });
   }
 
-  
   loadProfile(): void {
     this.authService.getProfile().subscribe({
       next: (user) => {
-        // Mettre à jour le signal
         this.currentUser.set(user);
-        
-        // Remplir le formulaire
         this.profileForm.patchValue({
           firstName: user.firstName,
           lastName: user.lastName,
           availability: user.availability || ''
         });
-        
-        // Mettre à jour les compétences
         this.offeredSkills.set(user.offeredSkills || []);
         this.wantedSkills.set(user.wantedSkills || []);
       },
@@ -106,15 +72,11 @@ export class ProfileComponent {
   }
 
   toggleEdit(): void {
-    
-    this.isEditing.update(value => !value);
-    
-    
+    this.isEditing.update(v => !v);
     this.successMessage.set('');
     this.errorMessage.set('');
     this.newAvatar.set(undefined);
     
-    // Si on annule l'édition, restaurer les valeurs
     if (!this.isEditing()) {
       const user = this.currentUser();
       if (user) {
@@ -148,7 +110,6 @@ export class ProfileComponent {
       lastName: this.profileForm.value.lastName,
     };
 
-   
     const currentOfferedSkills = this.offeredSkills();
     const currentWantedSkills = this.wantedSkills();
     
@@ -164,7 +125,6 @@ export class ProfileComponent {
       updateData.availability = this.profileForm.value.availability;
     }
 
-    // Gérer l'avatar
     const currentNewAvatar = this.newAvatar();
     if (currentNewAvatar !== undefined) {
       updateData.avatar = currentNewAvatar === '' ? null : currentNewAvatar;
@@ -184,8 +144,6 @@ export class ProfileComponent {
         this.isLoading.set(false);
         this.isEditing.set(false);
         this.successMessage.set('Profile updated successfully!');
-        
-        // Effacer le message après 3 secondes
         setTimeout(() => this.successMessage.set(''), 3000);
       },
       error: (error) => {
@@ -203,9 +161,7 @@ export class ProfileComponent {
   addOfferedSkill(): void {
     const skill = this.newOfferedSkill().trim();
     const currentSkills = this.offeredSkills();
-    
     if (skill && !currentSkills.includes(skill)) {
-
       this.offeredSkills.set([...currentSkills, skill]);
       this.newOfferedSkill.set('');
     }
@@ -226,7 +182,6 @@ export class ProfileComponent {
   addWantedSkill(): void {
     const skill = this.newWantedSkill().trim();
     const currentSkills = this.wantedSkills();
-    
     if (skill && !currentSkills.includes(skill)) {
       this.wantedSkills.set([...currentSkills, skill]);
       this.newWantedSkill.set('');
@@ -244,7 +199,6 @@ export class ProfileComponent {
       this.addWantedSkill();
     }
   }
-
 
   get firstName() {
     return this.profileForm.get('firstName');
