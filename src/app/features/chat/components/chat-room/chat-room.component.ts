@@ -19,6 +19,7 @@ import { Message, MessagePaginateI } from '../../models/message.model';
 import { Room } from '../../models/room.model';
 import { User } from '../../../../core/models/user.model';
 import { ChatService } from '../../services/chat.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { ChatMessageComponent } from '../chat-message/chat-message/chat-message.component';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
@@ -43,6 +44,7 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class ChatRoomComponent implements OnChanges, OnDestroy, AfterViewInit {
   private chatService = inject(ChatService);
+  private authService = inject(AuthService);
   
   @Input() chatRoom!: Room;
   @ViewChild('messagesContainer') private messagesScroller!: ElementRef;
@@ -51,21 +53,18 @@ export class ChatRoomComponent implements OnChanges, OnDestroy, AfterViewInit {
   chatMessage = new FormControl('', [Validators.required]);
   isSending = signal(false);
 
-  constructor() {
-    effect(() => {
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['chatRoom']) {
+      // Always leave the previous room when changing
+      if (changes['chatRoom'].previousValue) {
+        this.chatService.leaveRoom();
+      }
+      
+      // Join new room and initialize messages
       if (this.chatRoom) {
+        this.chatService.joinRoom(this.chatRoom);
         this.initializeMessages();
       }
-    });
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['chatRoom']?.previousValue) {
-      this.chatService.leaveRoom();
-    }
-    if (this.chatRoom) {
-      this.chatService.joinRoom(this.chatRoom);
-      this.initializeMessages();
     }
   }
 
@@ -97,9 +96,11 @@ export class ChatRoomComponent implements OnChanges, OnDestroy, AfterViewInit {
     if (!this.chatMessage.valid || !this.chatRoom || this.isSending() || !this.chatMessage.value) return;
 
     this.isSending.set(true);
+    const messageContent = this.chatMessage.value;
+    
     const message: Message = {
       id: '',
-      content: this.chatMessage.value,
+      content: messageContent,
       room: this.chatRoom,
       sender: {} as User,
       createdAt: new Date(),
@@ -107,7 +108,11 @@ export class ChatRoomComponent implements OnChanges, OnDestroy, AfterViewInit {
 
     this.chatService.sendMessage(message);
     this.chatMessage.reset();
-    this.isSending.set(false);
+    
+    // Reset sending state after a short delay to prevent rapid clicks
+    setTimeout(() => {
+      this.isSending.set(false);
+    }, 100);
   }
 
   private scrollToBottom(): void {
@@ -121,6 +126,19 @@ export class ChatRoomComponent implements OnChanges, OnDestroy, AfterViewInit {
     } catch (err) {
       console.error('Error scrolling to bottom:', err);
     }
+  }
+
+  getOtherParticipant(): User | null {
+    if (!this.chatRoom || !this.chatRoom.participants || this.chatRoom.participants.length === 0) {
+      return null;
+    }
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) {
+      return this.chatRoom.participants[0];
+    }
+    // Find the participant that is not the current user
+    const otherParticipant = this.chatRoom.participants.find(p => p.id !== currentUser.id);
+    return otherParticipant || this.chatRoom.participants[0];
   }
 }
 

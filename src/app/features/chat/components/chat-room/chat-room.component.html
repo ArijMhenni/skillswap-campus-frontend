@@ -4,11 +4,11 @@
     <div class="chat-header">
       <div class="header-content">
         <div class="participant-avatar">
-          {{ chatRoom.participants[0].firstName.charAt(0) }}{{ chatRoom.participants[0].lastName.charAt(0) }}
+          {{ getOtherParticipant()?.firstName?.charAt(0) }}{{ getOtherParticipant()?.lastName?.charAt(0) }}
         </div>
         <div class="header-info">
           <h3 class="participant-name">
-            {{ chatRoom.participants[0].firstName }} {{ chatRoom.participants[0].lastName }}
+            {{ getOtherParticipant()?.firstName }} {{ getOtherParticipant()?.lastName }}
           </h3>
           <span class="participant-status">Online</span>
         </div>
@@ -29,7 +29,7 @@
         </div>
       }
 
-      @for (message of (messagesPaginate$ | async)?.items; track message.id) {
+      @for (message of (messagesPaginate$ | async)?.items; track message.id || message.createdAt) {
         <div class="message-wrapper">
           <app-chat-message [message]="message"></app-chat-message>
         </div>

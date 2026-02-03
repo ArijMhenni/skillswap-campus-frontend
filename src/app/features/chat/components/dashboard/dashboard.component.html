@@ -21,7 +21,9 @@
       >
         <div class="room-item">
           <div class="room-header">
-            <div class="room-name">{{ room.participants[0].firstName }}  {{ room.participants[0].lastName }}</div>
+            <div class="room-name">
+              {{ getOtherParticipant(room)?.firstName }} {{ getOtherParticipant(room)?.lastName }}
+            </div>
             <div class="participant-count">
               {{ room.participants.length || 0 }} members
             </div>

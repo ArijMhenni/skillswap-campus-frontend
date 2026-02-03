@@ -84,4 +84,14 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   onCreateRoom() {
     this.router.navigate(['/create-room']);
   }
+
+  getOtherParticipant(room: Room): User | null {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser || !room.participants || room.participants.length === 0) {
+      return null;
+    }
+    // Find the participant that is not the current user
+    const otherParticipant = room.participants.find(p => p.id !== currentUser.id);
+    return otherParticipant || room.participants[0];
+  }
 }
