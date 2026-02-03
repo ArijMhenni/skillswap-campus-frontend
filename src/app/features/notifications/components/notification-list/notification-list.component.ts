@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { NotificationService } from '../../services/notification.service';
@@ -10,7 +10,7 @@ import { Notification } from '../../../../core/models/notification.model';
   imports: [CommonModule, RouterLink],
   templateUrl: './notification-list.component.html',
 })
-export class NotificationListComponent implements OnInit {
+export class NotificationListComponent  {
   private notificationService = inject(NotificationService);
 
   notifications = signal<Notification[]>([]);
@@ -20,7 +20,7 @@ export class NotificationListComponent implements OnInit {
     return this.notifications().some(n => !n.isRead);
   });
 
-  ngOnInit(): void {
+  constructor() {
     this.loadNotifications();
   }
 
@@ -29,12 +29,10 @@ export class NotificationListComponent implements OnInit {
     
     this.notificationService.getNotifications().subscribe({
       next: (data: Notification[]) => {
-        console.log('Notifications chargées:', data);
         this.notifications.set(data);
         this.isLoading.set(false);
       },
       error: (err: any) => {
-        console.error('❌ Erreur chargement notifications:', err);
         this.isLoading.set(false);
       }
     });

@@ -2,22 +2,17 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatChipsModule } from '@angular/material/chips';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ChatService } from '../../../services/chat.service';
 import { Room } from '../../../models/room.model';
 import { User } from '../../../../../core/models/user.model';
 import { UsersService } from '../../../../users/services/users.service';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-create-room',
@@ -27,15 +22,9 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     FormsModule,
     ReactiveFormsModule,
     MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatSelectModule,
-    MatDividerModule,
-    MatCheckboxModule,
     MatProgressSpinnerModule,
     MatChipsModule,
-    MatSnackBarModule,
+    MatIconModule,
   ],
   templateUrl: './create-room.component.html',
   styleUrls: ['./create-room.component.css'],
@@ -80,9 +69,7 @@ export class CreateRoomComponent implements OnInit, OnDestroy {
         next: () => (this.isLoading = false),
         error: () => {
           this.isLoading = false;
-          this.snackbar.open('Failed to load users', 'Close', {
-            duration: 3000,
-          });
+          console.error('Failed to load users');
         },
       });
   }

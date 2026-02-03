@@ -48,19 +48,18 @@ export const routes: Routes = [
       ),
   },
   {
-     path: 'messages', component: DashboardComponent,
-     canActivate: [authGuard]
-     
-    },
-     {
-     path: 'create-room', component: CreateRoomComponent,
-     canActivate: [authGuard]
-    },
+    path: 'messages',
+    component: DashboardComponent,
+    canActivate: [authGuard]
+  
+  },
+  {
+    path: 'create-room',
+    component: CreateRoomComponent,
+    canActivate: [authGuard]
+  },
   {
     path: '**',
     redirectTo: '/',
   },
-  
-  
 ];
-

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { RequestService } from '../../services/request.service';
@@ -12,7 +12,7 @@ import { RequestCardComponent } from '../request-card/request-card.component';
   templateUrl: './request-dashboard.component.html',
   styleUrl: './request-dashboard.component.css'
 })
-export class RequestDashboardComponent implements OnInit {
+export class RequestDashboardComponent {
   private requestService = inject(RequestService);
   private router = inject(Router);
 
@@ -45,7 +45,7 @@ export class RequestDashboardComponent implements OnInit {
 
   RequestStatus = RequestStatus;
 
-  ngOnInit(): void {
+  constructor() {
     this.loadRequests();
   }
 

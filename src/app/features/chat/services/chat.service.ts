@@ -36,12 +36,7 @@ export class ChatService {
 
   createRoom(room: Partial<Room>) {
     this.socket.emit('createRoom', room);
-
-    this.snackbar.open('Room created successfully', 'Close', {
-      duration: 2000,
-      horizontalPosition: 'right',
-      verticalPosition: 'top',
-    });
+    console.log('Room created successfully');
   }
 
   paginateRooms(page: PageI) {

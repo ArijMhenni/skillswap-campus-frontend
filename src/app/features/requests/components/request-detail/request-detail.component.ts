@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RequestService } from '../../services/request.service';
@@ -13,7 +13,7 @@ import { AuthService } from '../../../../core/services/auth.service';
   templateUrl: './request-detail.component.html',
   styleUrl: './request-detail.component.css'
 })
-export class RequestDetailComponent implements OnInit {
+export class RequestDetailComponent {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private requestService = inject(RequestService);
@@ -30,7 +30,7 @@ export class RequestDetailComponent implements OnInit {
     return !!(req && user && req.provider?.id === user.id);
   });
 
-  ngOnInit(): void {
+  constructr() {
     const id = this.route.snapshot.params['id'];
     this.loadRequest(id);
   }
