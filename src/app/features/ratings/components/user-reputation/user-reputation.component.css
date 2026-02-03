@@ -1,0 +1,93 @@
+.reputation-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.reputation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.score-section {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.score {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.max-score {
+  font-size: 16px;
+  color: #9ca3af;
+}
+
+.top-rated-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  background: #fef3c7;
+  color: #b45309;
+  border-radius: 20px;
+}
+
+.stars-row {
+  margin-bottom: 8px;
+}
+
+.total-reviews {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0 0 16px 0;
+}
+
+.distribution {
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.star-num {
+  width: 12px;
+  font-size: 12px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.bar-bg {
+  flex: 1;
+  height: 8px;
+  background: #f3f4f6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: #f59e0b;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.count {
+  width: 24px;
+  font-size: 12px;
+  color: #6b7280;
+  text-align: right;
+}

@@ -1,0 +1,65 @@
+<div class="rating-form-card">
+  <div class="card-header">
+    <h3>Evaluer votre echange</h3>
+  </div>
+
+  <div class="card-content">
+    <form (ngSubmit)="onSubmit()">
+      <!-- User Info -->
+      <div class="user-info">
+        <div class="avatar" *ngIf="!pendingRating.user.profilePicture">
+          {{ getInitials() }}
+        </div>
+        <img
+          *ngIf="pendingRating.user.profilePicture"
+          [src]="pendingRating.user.profilePicture"
+          [alt]="getFullName()"
+          class="avatar-img"
+        />
+        <div>
+          <p class="user-name">{{ getFullName() }}</p>
+          <p class="skill-name">{{ pendingRating.skillTitle }}</p>
+        </div>
+      </div>
+
+      <!-- Star Rating -->
+      <div class="rating-section">
+        <label>Comment etait votre experience?</label>
+        <div class="stars-wrapper">
+          <app-star-rating
+            [value]="stars"
+            (valueChange)="onStarsChange($event)"
+            size="lg"
+          ></app-star-rating>
+        </div>
+        <p *ngIf="stars > 0" class="rating-label">{{ ratingLabel }}</p>
+      </div>
+
+      <!-- Comment -->
+      <div class="comment-section">
+        <label for="comment">Commentaire (optionnel)</label>
+        <textarea
+          id="comment"
+          [(ngModel)]="comment"
+          name="comment"
+          placeholder="Partagez votre experience..."
+          rows="3"
+        ></textarea>
+      </div>
+
+      <!-- Actions -->
+      <div class="actions">
+        <button type="button" class="btn-secondary" (click)="onCancel()">
+          Annuler
+        </button>
+        <button
+          type="submit"
+          class="btn-primary"
+          [disabled]="stars === 0 || isSubmitting"
+        >
+          {{ isSubmitting ? "Envoi..." : "Envoyer l'avis" }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,60 @@
+<div class="rating-list">
+  <div *ngFor="let rating of ratings" class="rating-card">
+    <div class="rating-content">
+      <div class="avatar" *ngIf="!getOtherUser(rating).profilePicture">
+        {{
+          getInitials(
+            getOtherUser(rating).firstName,
+            getOtherUser(rating).lastName
+          )
+        }}
+      </div>
+      <img
+        *ngIf="getOtherUser(rating).profilePicture"
+        [src]="getOtherUser(rating).profilePicture"
+        [alt]="getFullName(getOtherUser(rating))"
+        class="avatar-img"
+      />
+
+      <div class="rating-info">
+        <div class="rating-header">
+          <div>
+            <p class="user-name">{{ getFullName(getOtherUser(rating)) }}</p>
+            <p class="skill-name">{{ rating.skillTitle }}</p>
+          </div>
+          <app-star-rating
+            [value]="rating.stars"
+            [readonly]="true"
+            size="sm"
+          ></app-star-rating>
+        </div>
+
+        <p *ngIf="rating.comment" class="comment">"{{ rating.comment }}"</p>
+        <p class="date">{{ formatDate(rating.createdAt) }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="ratings.length === 0" class="empty-state">
+    <div class="empty-icon">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <polygon
+          points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+        />
+      </svg>
+    </div>
+    <h3>{{ emptyMessage }}</h3>
+    <p>
+      Completez des echanges pour
+      {{ type === "received" ? "recevoir" : "donner" }} des avis
+    </p>
+  </div>
+</div>

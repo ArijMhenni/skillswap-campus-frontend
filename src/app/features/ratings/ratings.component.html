@@ -1,0 +1,111 @@
+<div class="ratings-page">
+  <header class="page-header">
+    <h1>Avis & Evaluations</h1>
+    <p>Consultez votre reputation et les avis sur vos echanges</p>
+  </header>
+
+  <div class="ratings-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <!-- Reputation Card -->
+      <app-user-reputation
+        *ngIf="reputation()"
+        [averageRating]="reputation()!.averageRating"
+        [totalRatings]="reputation()!.totalRatings"
+        [ratingDistribution]="reputation()!.ratingDistribution"
+      ></app-user-reputation>
+
+      <!-- Pending Ratings -->
+      <div *ngIf="pendingRatings().length > 0" class="pending-card">
+        <div class="pending-header">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+          <h3>Avis en attente</h3>
+          <span class="badge">{{ pendingRatings().length }}</span>
+        </div>
+
+        <div class="pending-list">
+          <div *ngFor="let pending of pendingRatings()" class="pending-item">
+            <div class="pending-info">
+              <div class="avatar">
+                {{ getInitials(pending.user.firstName, pending.user.lastName) }}
+              </div>
+              <div>
+                <p class="name">{{ getFullName(pending.user) }}</p>
+                <p class="skill">{{ pending.skillTitle }}</p>
+              </div>
+            </div>
+            <button class="rate-btn" (click)="openRatingForm(pending)">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polygon
+                  points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                />
+              </svg>
+              Evaluer
+            </button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Rating Form -->
+      <app-rating-form
+        *ngIf="selectedPendingRating()"
+        [pendingRating]="selectedPendingRating()!"
+        (submitRating)="submitRating($event)"
+        (cancel)="closeRatingForm()"
+      ></app-rating-form>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button
+          class="tab"
+          [class.active]="activeTab() === 'received'"
+          (click)="setTab('received')"
+        >
+          Recus ({{ receivedRatings().length }})
+        </button>
+        <button
+          class="tab"
+          [class.active]="activeTab() === 'given'"
+          (click)="setTab('given')"
+        >
+          Donnes ({{ givenRatings().length }})
+        </button>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loading()" class="loading">
+        <div class="spinner"></div>
+        <span>Chargement...</span>
+      </div>
+
+      <!-- Rating List -->
+      <app-rating-list
+        *ngIf="!loading()"
+        [ratings]="currentRatings"
+        [type]="activeTab()"
+      ></app-rating-list>
+    </main>
+  </div>
+</div>

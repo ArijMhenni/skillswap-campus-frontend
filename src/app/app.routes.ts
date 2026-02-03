@@ -54,6 +54,12 @@ export const routes: Routes = [
      path: 'create-room', component: CreateRoomComponent
     },
   {
+    path: 'ratings',
+    loadComponent: () =>
+      import('./features/ratings/ratings.component').then((m) => m.RatingsComponent),
+    canActivate: [authGuard],
+  },
+  {
     path: '**',
     redirectTo: '/',
   },
