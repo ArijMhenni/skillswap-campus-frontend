@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -26,7 +26,13 @@ import { SUCCESS_MESSAGES, SKILL_CATEGORY_LABELS, SKILL_TYPE_FORM_LABELS } from 
   templateUrl: './skill-form.component.html',
   styleUrls: ['./skill-form.component.css'],
 })
-export class SkillFormComponent implements OnInit {
+export class SkillFormComponent {
+  private fb = inject(FormBuilder);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private skillService = inject(SkillService);
+  private authService = inject(AuthService);
+
   skillForm: FormGroup;
   isEditMode = signal(false);
   skillId = signal<string | null>(null);
@@ -39,17 +45,10 @@ export class SkillFormComponent implements OnInit {
   categories = Object.values(SkillCategory);
   types = Object.values(SkillType);
 
-  constructor(
-    private fb: FormBuilder,
-    private route: ActivatedRoute,
-    private router: Router,
-    private skillService: SkillService,
-    private authService: AuthService
-  ) {
+  constructor() {
     this.skillForm = this.createForm();
-  }
-
-  ngOnInit(): void {
+    
+    // Initialize with route params
     const id = this.route.snapshot.paramMap.get('id');
     this.skillId.set(id);
     this.isEditMode.set(!!id);

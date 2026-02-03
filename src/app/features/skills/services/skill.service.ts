@@ -18,11 +18,6 @@ export class SkillService {
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * Get paginated list of skills with optional filters
-   * @param filters - Optional filters (category, type, search, page, limit)
-   * @returns Observable of paginated skills
-   */
   getSkills(filters?: SkillFilters): Observable<PaginatedResponse<Skill>> {
     let params = new HttpParams();
 
@@ -47,51 +42,23 @@ export class SkillService {
     return this.http.get<PaginatedResponse<Skill>>(this.apiUrl, { params });
   }
 
-  /**
-   * Get a single skill by ID
-   * @param id - Skill ID
-   * @returns Observable of skill
-   */
   getSkillById(id: string): Observable<Skill> {
     return this.http.get<Skill>(`${this.apiUrl}/${id}`);
   }
 
-  /**
-   * Get skills by user ID
-   * @param userId - User ID
-   * @returns Observable of skills array
-   */
   getSkillsByUser(userId: string): Observable<Skill[]> {
     return this.http.get<Skill[]>(`${this.apiUrl}/user/${userId}`);
   }
 
-  /**
-   * Create a new skill
-   * @param data - Skill data
-   * @returns Observable of created skill
-   * @note JWT token is automatically added by authInterceptor
-   */
+  
   createSkill(data: CreateSkillDto): Observable<Skill> {
     return this.http.post<Skill>(this.apiUrl, data);
   }
 
-  /**
-   * Update an existing skill
-   * @param id - Skill ID
-   * @param data - Updated skill data
-   * @returns Observable of updated skill
-   * @note JWT token is automatically added by authInterceptor
-   */
   updateSkill(id: string, data: UpdateSkillDto): Observable<Skill> {
     return this.http.patch<Skill>(`${this.apiUrl}/${id}`, data);
   }
 
-  /**
-   * Delete a skill (soft delete)
-   * @param id - Skill ID
-   * @returns Observable of void
-   * @note JWT token is automatically added by authInterceptor
-   */
   deleteSkill(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }

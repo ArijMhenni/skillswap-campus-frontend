@@ -1,9 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { AsyncPipe, DatePipe } from '@angular/common';
+import { Component, Input, inject, signal, effect } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { Message } from '../../../models/message.model';
-import { User } from '../../../../../core/models/user.model';
 import { AuthService } from '../../../../../core/services/auth.service';
-import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -11,25 +9,35 @@ import { CommonModule } from '@angular/common';
   templateUrl: './chat-message.component.html',
   styleUrls: ['./chat-message.component.scss'],
   standalone: true,
-  imports: [AsyncPipe, DatePipe,CommonModule]
+  imports: [DatePipe, CommonModule]
 })
-export class ChatMessageComponent implements OnInit {
+export class ChatMessageComponent {
+  private authService = inject(AuthService);
+  
+  @Input() message!: Message;
+  currentUserId = signal<string | null>(null);
 
-  @Input() message!: Message; // ⚡ add definite assignment
-  user$!: Observable<User>;
-
-  constructor(private authService: AuthService) { }
-
-  ngOnInit() {
-    this.user$ = this.authService.getProfile(); // get current logged-in user
+  constructor() {
+    // Get current user from auth service
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser) {
+      this.currentUserId.set(currentUser.id);
+    }
+    
+    // Also subscribe to profile in case getCurrentUser doesn't work
+    this.authService.getProfile().subscribe({
+      next: (user) => {
+        if (user?.id) {
+          this.currentUserId.set(user.id);
+        }
+      },
+      error: (err) => console.error('Error fetching user profile:', err)
+    });
   }
 
-  // optional helper to check if the message is sent by the logged-in user
-  isMine(senderId: string | undefined): boolean {
-    let mine = false;
-    this.user$.subscribe(user => {
-      mine = user.id === senderId;
-    }).unsubscribe();
-    return mine;
+  get isOwnMessage(): boolean {
+    const userId = this.currentUserId();
+    const senderId = this.message?.sender?.id;
+    return userId !== null && senderId !== undefined && userId === senderId;
   }
 }

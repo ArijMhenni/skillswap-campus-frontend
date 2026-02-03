@@ -1,52 +1,75 @@
-<div *ngIf="chatRoom" class="chat-room-container">
-  <!-- Header -->
-  <div class="chat-header">
-    <h3>{{ chatRoom.participants[0].firstName }} {{ chatRoom.participants[0].lastName }}</h3>
-    <div class="room-info">
-      {{ chatRoom.participants.length || 0 }} participants
+@if (chatRoom) {
+  <div class="chat-room-container">
+    <!-- Header -->
+    <div class="chat-header">
+      <div class="header-content">
+        <div class="participant-avatar">
+          {{ chatRoom.participants[0].firstName.charAt(0) }}{{ chatRoom.participants[0].lastName.charAt(0) }}
+        </div>
+        <div class="header-info">
+          <h3 class="participant-name">
+            {{ chatRoom.participants[0].firstName }} {{ chatRoom.participants[0].lastName }}
+          </h3>
+          <span class="participant-status">Online</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Messages Container -->
+    <div class="messages-container" #messagesContainer>
+      @if (!(messagesPaginate$ | async)?.items?.length) {
+        <div class="no-messages">
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <p class="empty-title">No messages yet</p>
+            <p class="empty-subtitle">Start the conversation by sending a message</p>
+          </div>
+        </div>
+      }
+
+      @for (message of (messagesPaginate$ | async)?.items; track message.id) {
+        <div class="message-wrapper">
+          <app-chat-message [message]="message"></app-chat-message>
+        </div>
+      }
+    </div>
+
+    <!-- Message Input -->
+    <div class="message-input-section">
+      <div class="input-wrapper">
+        <input
+          type="text"
+          [formControl]="chatMessage"
+          placeholder="Type your message..."
+          class="message-input"
+          (keyup.enter)="sendMessage()"
+          [disabled]="isSending()"
+        />
+        <button
+          mat-fab
+          color="primary"
+          [disabled]="!chatMessage.valid || isSending()"
+          (click)="sendMessage()"
+          class="send-button"
+          aria-label="Send message"
+        >
+          <mat-icon>send</mat-icon>
+        </button>
+      </div>
     </div>
   </div>
+}
 
-  <mat-divider></mat-divider>
-
-  <!-- Messages Container -->
-  <div class="messages-container" #messagesContainer>
-    <div *ngIf="!(messagesPaginate$ | async)?.items?.length" class="no-messages">
-      <p>No messages yet. Start the conversation!</p>
-    </div>
-
-    <div
-      *ngFor="let message of (messagesPaginate$ | async)?.items"
-      class="message-item"
-      [class.own-message]="message.sender.id === ''"
-    >
-      <app-chat-message [message]="message"></app-chat-message>
+@if (!chatRoom) {
+  <div class="no-room-selected">
+    <div class="empty-state">
+      <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      </svg>
+      <p class="empty-title">No chat selected</p>
+      <p class="empty-subtitle">Choose a conversation to start messaging</p>
     </div>
   </div>
-
-  <mat-divider></mat-divider>
-
-  <!-- Message Input -->
-  <div class="message-input-section">
-    <input
-      type="text"
-      [formControl]="chatMessage"
-      placeholder="Type a message..."
-      class="message-input"
-      (keyup.enter)="sendMessage()"
-    />
-    <button
-      mat-raised-button
-      color="primary"
-      [disabled]="!chatMessage.valid"
-      (click)="sendMessage()"
-      class="send-button"
-    >
-      Send
-    </button>
-  </div>
-</div>
-
-<div *ngIf="!chatRoom" class="no-room-selected">
-  <p>Select a chat to start chatting</p>
-</div>
+}

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -20,7 +20,10 @@ import { PAGINATION_DEFAULTS, SKILL_CATEGORY_LABELS, SKILL_TYPE_LABELS } from '.
   templateUrl: './skill-list.component.html',
   styleUrls: ['./skill-list.component.css'],
 })
-export class SkillListComponent implements OnInit {
+export class SkillListComponent {
+  private router = inject(Router);
+  private skillService = inject(SkillService);
+
   skills = signal<Skill[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
@@ -48,9 +51,7 @@ export class SkillListComponent implements OnInit {
   categories = Object.values(SkillCategory);
   types = Object.values(SkillType);
 
-  constructor(private router: Router, private skillService: SkillService) {}
-
-  ngOnInit(): void {
+  constructor() {
     this.loadSkills();
   }
 

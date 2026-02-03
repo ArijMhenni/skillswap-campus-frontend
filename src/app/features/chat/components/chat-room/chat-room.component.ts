@@ -5,9 +5,11 @@ import {
   Input,
   OnChanges,
   OnDestroy,
-  OnInit,
   SimpleChanges,
   ViewChild,
+  signal,
+  inject,
+  effect,
 } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -21,6 +23,7 @@ import { ChatMessageComponent } from '../chat-message/chat-message/chat-message.
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-chat-room',
@@ -33,21 +36,27 @@ import { MatInputModule } from '@angular/material/input';
     MatDividerModule,
     MatButtonModule,
     MatInputModule,
+    MatIconModule,
   ],
   templateUrl: './chat-room.component.html',
   styleUrls: ['./chat-room.component.css'],
 })
 export class ChatRoomComponent implements OnChanges, OnDestroy, AfterViewInit {
+  private chatService = inject(ChatService);
+  
   @Input() chatRoom!: Room;
   @ViewChild('messagesContainer') private messagesScroller!: ElementRef;
 
   messagesPaginate$!: Observable<MessagePaginateI>;
-  chatMessage: FormControl = new FormControl('', [Validators.required]);
+  chatMessage = new FormControl('', [Validators.required]);
+  isSending = signal(false);
 
-  constructor(private chatService: ChatService) {}
-
-  ngOnInit() {
-    this.initializeMessages();
+  constructor() {
+    effect(() => {
+      if (this.chatRoom) {
+        this.initializeMessages();
+      }
+    });
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -85,8 +94,9 @@ export class ChatRoomComponent implements OnChanges, OnDestroy, AfterViewInit {
   }
 
   sendMessage() {
-    if (!this.chatMessage.valid || !this.chatRoom) return;
+    if (!this.chatMessage.valid || !this.chatRoom || this.isSending() || !this.chatMessage.value) return;
 
+    this.isSending.set(true);
     const message: Message = {
       id: '',
       content: this.chatMessage.value,
@@ -97,6 +107,7 @@ export class ChatRoomComponent implements OnChanges, OnDestroy, AfterViewInit {
 
     this.chatService.sendMessage(message);
     this.chatMessage.reset();
+    this.isSending.set(false);
   }
 
   private scrollToBottom(): void {

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SkillService } from '../services/skill.service';
@@ -18,7 +18,12 @@ import { CreateRequestModalComponent } from "../../requests/components/create-re
   templateUrl: './skill-detail.component.html',
   styleUrls: ['./skill-detail.component.css'],
 })
-export class SkillDetailComponent implements OnInit {
+export class SkillDetailComponent {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private skillService = inject(SkillService);
+  private authService = inject(AuthService);
+
   skill = signal<Skill | null>(null);
   loading = signal(false);
   error = signal<string | null>(null);
@@ -28,15 +33,9 @@ export class SkillDetailComponent implements OnInit {
 
   // Expose SkillType enum to template
   SkillType = SkillType;
+  showModal = signal<boolean>(false);
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private skillService: SkillService,
-    private authService: AuthService
-  ) {}
-
-  ngOnInit(): void {
+  constructor() {
     // Get ownership status from route data (set by guard)
     const isOwnerFromRoute = this.route.snapshot.data['isOwner'];
     if (isOwnerFromRoute !== undefined) {
@@ -184,8 +183,6 @@ export class SkillDetailComponent implements OnInit {
       day: 'numeric',
     });
   }
-
-  showModal = signal<boolean>(false);
 
   openRequestModal(): void {
     this.showModal.set(true);

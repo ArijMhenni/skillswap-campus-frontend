@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Skill } from '../../../core/models/skill.model';
@@ -13,9 +13,9 @@ import { getUserDisplayName, getUserInitials } from '../../../core/models/user.m
   styleUrls: ['./skill-card.component.css'],
 })
 export class SkillCardComponent {
+  private router = inject(Router);
+  
   @Input() skill!: Skill;
-
-  constructor(private router: Router) {}
 
   viewDetails(): void {
     this.router.navigate(['/skills', this.skill.id]);
