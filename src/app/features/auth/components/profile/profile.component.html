@@ -20,21 +20,21 @@
     </div>
 
     <!-- Success/Error Messages -->
-    @if (successMessage) {
+    @if (successMessage()) {
       <div class="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg flex items-start">
         <svg class="w-5 h-5 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
         </svg>
-        <span>{{ successMessage }}</span>
+        <span>{{ successMessage() }}</span>
       </div>
     }
 
-    @if (errorMessage) {
+    @if (errorMessage()) {
       <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg flex items-start">
         <svg class="w-5 h-5 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
         </svg>
-        <span>{{ errorMessage }}</span>
+        <span>{{ errorMessage() }}</span>
       </div>
     }
 
@@ -44,23 +44,23 @@
         <div class="card text-center">
           <!-- Avatar -->
           <div class="mb-4">
-            @if (isEditing) {
+            @if (isEditing()) {
               <app-avatar-upload
-                [currentAvatar]="currentUser?.avatar || null"
-                [userInitials]="getUserInitials()"
+                [currentAvatar]="currentUser()?.avatar || null"
+                [userInitials]="userInitials()"
                 size="large"
                 (avatarChange)="onAvatarChange($event)"
               />
             } @else {
-              @if (currentUser?.avatar) {
+              @if (currentUser()?.avatar) {
                 <img 
-                  [src]="currentUser!.avatar" 
+                  [src]="currentUser()!.avatar" 
                   alt="Profile" 
                   class="w-24 h-24 mx-auto rounded-full object-cover shadow-lg"
                 />
               } @else {
                 <div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
-                  {{ getUserInitials() }}
+                  {{ userInitials() }}
                 </div>
               }
             }
@@ -68,26 +68,26 @@
 
           <!-- User Info -->
           <h2 class="text-xl font-bold text-gray-800 mb-1">
-            {{ currentUser?.firstName }} {{ currentUser?.lastName }}
+            {{ currentUser()?.firstName }} {{ currentUser()?.lastName }}
           </h2>
-          <p class="text-gray-600 text-sm mb-4">{{ currentUser?.email }}</p>
+          <p class="text-gray-600 text-sm mb-4">{{ currentUser()?.email }}</p>
 
           <!-- Role Badge -->
           <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary mb-6">
             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
               <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
             </svg>
-            {{ currentUser?.role }}
+            {{ currentUser()?.role }}
           </div>
 
           <!-- Stats -->
           <div class="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200">
             <div>
-              <div class="text-2xl font-bold text-primary">{{ offeredSkills.length }}</div>
+              <div class="text-2xl font-bold text-primary">{{ offeredSkills().length }}</div>
               <div class="text-xs text-gray-600">Skills Offered</div>
             </div>
             <div>
-              <div class="text-2xl font-bold text-secondary">{{ wantedSkills.length }}</div>
+              <div class="text-2xl font-bold text-secondary">{{ wantedSkills().length }}</div>
               <div class="text-xs text-gray-600">Skills Wanted</div>
             </div>
           </div>
@@ -99,7 +99,7 @@
         <div class="card">
           <div class="flex items-center justify-between mb-6">
             <h3 class="text-xl font-bold text-gray-800">Profile Information</h3>
-            @if (!isEditing) {
+            @if (!isEditing()) {
               <button
                 (click)="toggleEdit()"
                 class="btn-primary flex items-center gap-2"
@@ -134,16 +134,16 @@
                     formControlName="firstName"
                     class="input-field"
                     [class.input-error]="firstName?.invalid && firstName?.touched"
-                    [readonly]="!isEditing"
-                    [class.bg-gray-50]="!isEditing"
+                    [readonly]="!isEditing()"
+                    [class.bg-gray-50]="!isEditing()"
                   />
-                  @if (isEditing && firstName?.invalid && firstName?.touched) {
+                  @if (isEditing() && firstName?.invalid && firstName?.touched) {
                     <div class="mt-1 text-sm text-red-600">
                       @if (firstName?.errors?.['required']) {
                         <p>First name is required</p>
                       }
-                      @if (firstName?.errors?.['minlength']) {
-                        <p>Must be at least 2 characters</p>
+                      @if (firstName?.errors?.['maxlength']) {
+                        <p>Maximum 50 characters</p>
                       }
                     </div>
                   }
@@ -160,16 +160,16 @@
                     formControlName="lastName"
                     class="input-field"
                     [class.input-error]="lastName?.invalid && lastName?.touched"
-                    [readonly]="!isEditing"
-                    [class.bg-gray-50]="!isEditing"
+                    [readonly]="!isEditing()"
+                    [class.bg-gray-50]="!isEditing()"
                   />
-                  @if (isEditing && lastName?.invalid && lastName?.touched) {
+                  @if (isEditing() && lastName?.invalid && lastName?.touched) {
                     <div class="mt-1 text-sm text-red-600">
                       @if (lastName?.errors?.['required']) {
                         <p>Last name is required</p>
                       }
-                      @if (lastName?.errors?.['minlength']) {
-                        <p>Must be at least 2 characters</p>
+                      @if (lastName?.errors?.['maxlength']) {
+                        <p>Maximum 50 characters</p>
                       }
                     </div>
                   }
@@ -184,9 +184,10 @@
                 <input
                   id="email"
                   type="email"
-                  formControlName="email"
+                  [value]="currentUser()?.email || ''"
                   class="input-field bg-gray-50 cursor-not-allowed"
                   readonly
+                  disabled
                 />
                 <p class="mt-1 text-xs text-gray-500">Email cannot be changed</p>
               </div>
@@ -203,13 +204,13 @@
               </h4>
 
               <!-- Add Skill Input (only in edit mode) -->
-              @if (isEditing) {
+              @if (isEditing()) {
                 <div class="mb-3">
                   <div class="flex gap-2">
                     <input
                       type="text"
-                      [(ngModel)]="newOfferedSkill"
-                      [ngModelOptions]="{standalone: true}"
+                      [value]="newOfferedSkill()"
+                      (input)="newOfferedSkill.set($any($event.target).value)"
                       (keypress)="onOfferedSkillKeyPress($event)"
                       class="input-field"
                       placeholder="e.g., JavaScript, Guitar, French..."
@@ -229,10 +230,10 @@
 
               <!-- Skills List -->
               <div class="flex flex-wrap gap-2">
-                @for (skill of offeredSkills; track skill) {
+                @for (skill of offeredSkills(); track skill) {
                   <span class="badge-primary flex items-center gap-2">
                     {{ skill }}
-                    @if (isEditing) {
+                    @if (isEditing()) {
                       <button
                         type="button"
                         (click)="removeOfferedSkill(skill)"
@@ -244,8 +245,7 @@
                       </button>
                     }
                   </span>
-                }
-                @if (offeredSkills.length === 0) {
+                } @empty {
                   <span class="text-gray-500 text-sm italic">
                     No skills offered yet
                   </span>
@@ -263,13 +263,13 @@
               </h4>
 
               <!-- Add Skill Input (only in edit mode) -->
-              @if (isEditing) {
+              @if (isEditing()) {
                 <div class="mb-3">
                   <div class="flex gap-2">
                     <input
                       type="text"
-                      [(ngModel)]="newWantedSkill"
-                      [ngModelOptions]="{standalone: true}"
+                      [value]="newWantedSkill()"
+                      (input)="newWantedSkill.set($any($event.target).value)"
                       (keypress)="onWantedSkillKeyPress($event)"
                       class="input-field"
                       placeholder="e.g., Python, Photography, Spanish..."
@@ -289,10 +289,10 @@
 
               <!-- Skills List -->
               <div class="flex flex-wrap gap-2">
-                @for (skill of wantedSkills; track skill) {
+                @for (skill of wantedSkills(); track skill) {
                   <span class="badge-secondary flex items-center gap-2">
                     {{ skill }}
-                    @if (isEditing) {
+                    @if (isEditing()) {
                       <button
                         type="button"
                         (click)="removeWantedSkill(skill)"
@@ -304,8 +304,7 @@
                       </button>
                     }
                   </span>
-                }
-                @if (wantedSkills.length === 0) {
+                } @empty {
                   <span class="text-gray-500 text-sm italic">
                     No skills wanted yet
                   </span>
@@ -327,37 +326,34 @@
                 formControlName="availability"
                 rows="4"
                 class="input-field"
-                [readonly]="!isEditing"
-                [class.bg-gray-50]="!isEditing"
+                [readonly]="!isEditing()"
+                [class.bg-gray-50]="!isEditing()"
                 placeholder="e.g., Weekends 10am-6pm, Weekdays after 5pm..."
               ></textarea>
             </div>
 
             <!-- Action Buttons -->
-            @if (isEditing) {
+            @if (isEditing()) {
               <div class="flex gap-3">
                 <button
                   type="submit"
-                  [disabled]="isLoading"
+                  [disabled]="isLoading()"
                   class="btn-primary flex-1 flex items-center justify-center"
                 >
-                  @if (isLoading) {
+                  @if (isLoading()) {
                     <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                       <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                  }
-                  @if (!isLoading) {
-                    <span>Save Changes</span>
-                  }
-                  @if (isLoading) {
                     <span>Saving...</span>
+                  } @else {
+                    <span>Save Changes</span>
                   }
                 </button>
                 <button
                   type="button"
                   (click)="toggleEdit()"
-                  [disabled]="isLoading"
+                  [disabled]="isLoading()"
                   class="btn-secondary flex-1"
                 >
                   Cancel
